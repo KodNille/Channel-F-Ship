@@ -1,0 +1,800 @@
+------- FILE E:\CHANNEL F\ChannelFDev\hello\main.asm LEVEL 1 PASS 1
+      1  0000					      processor	f8
+------- FILE ves.h LEVEL 2 PASS 1
+      0  0000 ????				      include	"ves.h"
+      1  0000 ????						; VES.H
+      2  0000 ????						; Fairchild Channel F Header
+      3  0000 ????						; Version 1.01, 2/NOVEMBER/2004
+      4  0000 ????
+      5  0000 ????	       00 65	   VERSION_CHANNELF =	101
+      6  0000 ????	       00 65	   VERSION_VES =	101
+      7  0000 ????
+      8  0000 ????						; THIS IS A PRELIMINARY RELEASE OF *THE* "STANDARD" VES.H
+      9  0000 ????						; THIS FILE IS EXPLICITLY SUPPORTED AS A DASM-PREFERRED COMPANION FILE
+     10  0000 ????						; PLEASE DO *NOT* REDISTRIBUTE THIS FILE!
+     11  0000 ????						;
+     12  0000 ????						; This file defines hardware registers and memory mapping for the
+     13  0000 ????						; Fairchild Channel-F. It is distributed as a companion machine-specific support package
+     14  0000 ????						; for the DASM compiler. Updates to this file, DASM, and associated tools are
+     15  0000 ????						; available at at http://www.atari2600.org/dasm
+     16  0000 ????						;
+     17  0000 ????						; Many thanks to the original author(s) of this file, and to everyone who has
+     18  0000 ????						; contributed to understanding the Channel-F.	If you take issue with the
+     19  0000 ????						; contents, or naming of registers, please write to me (atari2600@taswegian.com)
+     20  0000 ????						; with your views.  Please contribute, if you think you can improve this
+     21  0000 ????						; file!
+     22  0000 ????						;
+     23  0000 ????						; Latest Revisions...
+     24  0000 ????						; 1.01   2/NOV/2004	Kevin Lipe's version (combined macro/header)
+     25  0000 ????						;			renamed to VES.H
+     26  0000 ????						;			alternates provided for deprecated equates
+     27  0000 ????						;			ALL hardware/BIOS equates now in uppercase and prefixed
+     28  0000 ????						; 1.00  31/OCT/2004	- initial release
+     29  0000 ????
+     30  0000 ????
+     31  0000 ????
+     32  0000 ????						; Please contribute Channel-F header code to atari2600@taswegian.com
+     33  0000 ????
+     34  0000 ????
+     35  0000 ????
+     36  0000 ????			   INCLUDE_DEPRECATED		; remove to DISABLE deprecated equates
+     37  0000 ????
+     38  0000 ????
+     39  0000 ????						;-------------------------------------------------------------------------------
+     40  0000 ????						; BIOS Calls
+     41  0000 ????						;------------------------
+     42  0000 ????
+     43  0000 ????	       00 d0	   BIOS_CLEAR_SCREEN =	$00d0	; uses r31
+     44  0000 ????	       00 8f	   BIOS_DELAY =	$008f
+     45  0000 ????	       01 07	   BIOS_PUSH_K =	$0107	; used to allow more subroutine stack space
+     46  0000 ????	       01 1e	   BIOS_POP_K =	$011e
+     47  0000 ????	       06 79	   BIOS_DRAW_CHARACTER =	$0679
+     48  0000 ????
+     49  0000 ????						;-------------------------------------------------------------------------------
+     50  0000 ????						; Colors
+     51  0000 ????
+     52  0000 ????	       00 40	   COLOR_RED  =	$40
+     53  0000 ????	       00 80	   COLOR_BLUE =	$80
+     54  0000 ????	       00 00	   COLOR_GREEN =	$00
+     55  0000 ????	       00 c0	   COLOR_BACKGROUND =	$C0
+     56  0000 ????
+     57  0000 ????						; BAckground Colors
+     58  0000 ????
+     59  0000 ????	       00 d6	   BK_COLOR_GREY =	$d6
+     60  0000 ????	       00 93	   BK_COLOR_BLUE =	$93
+     61  0000 ????	       00 c0	   BK_COLOR_GREEN =	$c0
+     62  0000 ????	       00 21	   BK_COLOR_BLACK =	$21
+     63  0000 ????
+     64  0000 ????						; Alternate (European) spellings...
+     65  0000 ????
+     66  0000 ????	       00 40	   COLOUR_RES =	COLOR_RED
+     67  0000 ????	       00 80	   COLOUR_BLUE =	COLOR_BLUE
+     68  0000 ????	       00 00	   COLOUR_GREEN =	COLOR_GREEN
+     69  0000 ????	       00 c0	   COLOUR_BACKGROUND =	COLOR_BACKGROUND
+     70  0000 ????
+     71  0000 ????						;-------------------------------------------------------------------------------
+     72  0000 ????						; DEPRECATED equates.
+     73  0000 ????						; These present to be compatible with existing equate usage.  
+     74  0000 ????						; DO NOT USE THESE IN NEW CODE -- WE WANT TO GET RID OF THEM!
+     75  0000 ????
+     76  0000 ????			  -	      IFCONST	INCLUDE_DEPRECATED
+     77  0000 ????			  -
+     78  0000 ????			  -clrscrn    =	BIOS_CLEAR_SCREEN	; DEPRECATED!
+     79  0000 ????			  -delay      =	BIOS_DELAY	; DEPRECATED!
+     80  0000 ????			  -pushk      =	BIOS_PUSH_K	; DEPRECATED!
+     81  0000 ????			  -popk       =	BIOS_POP_K	; DEPRECATED!
+     82  0000 ????			  -drawchar   =	BIOS_DRAW_CHARACTER	; DEPRECATED!
+     83  0000 ????			  -
+     84  0000 ????			  -red	      =	COLOR_RED	; DEPRECATED!
+     85  0000 ????			  -blue       =	COLOR_BLUE	; DEPRECATED
+     86  0000 ????			  -green      =	COLOR_GREEN	; DEPRECATED
+     87  0000 ????			  -bkg	      =	COLOR_BACKGROUND	; DEPRECATED
+     88  0000 ????			  -
+     89  0000 ????				      ENDIF
+     90  0000 ????
+     91  0000 ????						;------------------------
+     92  0000 ????						; Schach RAM
+     93  0000 ????						;------------------------
+     94  0000 ????	       28 00	   ram	      =	$2800	;location of RAM available in Schach cartridge
+     95  0000 ????
+     96  0000 ????						;===================================================================
+     97  0000 ????						; M A C R O S
+     98  0000 ????						;===================================================================
+     99  0000 ????
+    100  0000 ????						;-------------------------
+    101  0000 ????						; CARTRIDGE_START
+    102  0000 ????						; Original Author: Sean Riddle
+    103  0000 ????						; Inserts the $55 that signals a valid Channel F cartridge and an
+    104  0000 ????						; unused byte, which places the VES at the cartridge entry point, $802.
+    105  0000 ????
+    106  0000 ????				      MAC	cartridge_start
+    107  0000 ????				      .byte	$55, $00	; valid cart indicator, unused byte
+    108  0000 ????				      ENDM
+    109  0000 ????
+    110  0000 ????						;-------------------------
+    111  0000 ????						; CARTRIDGE_INIT
+    112  0000 ????						; Original Author: Sean Riddle
+    113  0000 ????						; Initalizes the hardware and clears the complement flag.
+    114  0000 ????
+    115  0000 ????				      MAC	cartridge_init
+    116  0000 ????						; initalize the hardware
+    117  0000 ????				      lis	0
+    118  0000 ????				      outs	1
+    119  0000 ????				      outs	4
+    120  0000 ????				      outs	5
+    121  0000 ????				      outs	0
+    122  0000 ????
+    123  0000 ????						; clear the complement flag (r32)
+    124  0000 ????				      lisu	4
+    125  0000 ????				      lisl	0
+    126  0000 ????				      lr	S, A
+    127  0000 ????				      ENDM
+    128  0000 ????
+    129  0000 ????						;-------------------------
+    130  0000 ????						; PROMPTS_NO_T
+    131  0000 ????						; Original Author: Sean Riddle
+    132  0000 ????						; This code functions the same as the "prompts" section of the BIOS,
+    133  0000 ????						; but this code doesn't have a "T?" prompt, so it's useful in games that
+    134  0000 ????						; don't have time limits or settings.
+    135  0000 ????
+    136  0000 ????				      MAC	prompts_not
+    137  0000 ????			   prompts    SUBROUTINE
+    138  0000 ????				      LR	K,P	; 
+    139  0000 ????				      PI	pushk	; 
+    140  0000 ????			   .prompts2  LI	$85	; red 5 (S)
+    141  0000 ????				      LR	$0,A	; 
+    142  0000 ????				      PI	prompt	; 
+    143  0000 ????				      LR	A,$4	; 
+    144  0000 ????				      CI	$08	; is it button 4, Start?
+    145  0000 ????				      BF	$4,.notbut4	; no, check others
+    146  0000 ????			   .notbut2
+    147  0000 ????				      PI	popk	; yes, return
+    148  0000 ????				      PK		; 
+    149  0000 ????
+    150  0000 ????			   .notbut4   CI	$02	; is it button 2, Mode?
+    151  0000 ????				      BF	$4,.notbut2	; 
+    152  0000 ????				      LI	$8e	; red M
+    153  0000 ????				      LR	$0,A	; 
+    154  0000 ????				      PI	prompt	; 
+    155  0000 ????				      LISU	3	; 
+    156  0000 ????				      LISL	6	; 
+    157  0000 ????				      LR	A,(IS)	; 
+    158  0000 ????				      as	4	;add the mode to the game #
+    159  0000 ????				      LR	(IS),A	; 
+    160  0000 ????				      BF	$0,.prompts2	; 
+    161  0000 ????				      ENDM
+    162  0000 ????
+    163  0000 ????						;-------------------------
+    164  0000 ????						; SETISAR
+    165  0000 ????						; Original Author: Blackbird
+    166  0000 ????						; Sets the ISAR to a register number, using lisu and lisl
+    167  0000 ????
+    168  0000 ????				      MAC	setisar
+    169  0000 ????				      lisu	[[{1}] >> 3]
+    170  0000 ????				      lisl	[[{1}] & %111]
+    171  0000 ????				      ENDM
+    172  0000 ????						;-------------------------------------------------------------------------------
+    173  0000 ????						; The following required for back-compatibility with code which does not use
+    174  0000 ????						; segments.
+    175  0000 ????
+    176  0000 ????				      SEG
+    177  0000 ????
+    178  0000 ????						; EOF
+------- FILE E:\CHANNEL F\ChannelFDev\hello\main.asm
+      3  0000 ????
+      4  0800					      org	$0800
+      0  0800					      CARTRIDGE_START
+      1  0800		       55 00		      .byte.b	$55, $00
+      0  0802					      CARTRIDGE_INIT
+      1  0802
+      2  0802		       70		      lis	0
+      3  0803		       b1		      outs	1
+      4  0804		       b4		      outs	4
+      5  0805		       b5		      outs	5
+      6  0806		       b0		      outs	0
+      7  0807
+      8  0807
+      9  0807		       64		      lisu	4
+     10  0808		       68		      lisl	0
+     11  0809		       5c		      lr	S, A
+      7  080a
+      8  080a		       00 40	   PLAYER_COLOR =	COLOR_RED
+      9  080a
+     10  080a		       00 ff	   PLAYER_MOVE_DELAY_SECOND_SVALUE =	255
+     11  080a		       00 02	   PLAYER_MOVE_DELAY_MAIN_SVALUE =	2
+     12  080a
+     13  080a
+     14  080a		       00 03	   PLAYER_BANK =	3
+     15  080a
+     16  080a		       00 01	   PLAYER_X_POS =	1
+     17  080a		       00 02	   PLAYER_Y_POS =	2
+     18  080a		       00 03	   PLAYER_MOVE_DELAY_SECOND =	3
+     19  080a		       00 04	   PLAYER_MOVE_DELAY_MAIN =	4
+     20  080a		       00 05	   PLAYER_1_JOYSTICK =	5
+     21  080a		       00 06	   PLAYER_X_POS_NEXT =	6
+     22  080a		       00 07	   PLAYER_Y_POS_NEXT =	7
+     23  080a
+     24  080a				   SET_DEFAULTS
+     25  080a				   setbackground
+     26  080a		       20 93		      li	BK_COLOR_BLUE
+     27  080c		       53		      lr	3,a
+     28  080d		       28 00 d0 	      pi	BIOS_CLEAR_SCREEN
+     29  0810				   setPlayerXpos
+     30  0810		       63		      lisu	PLAYER_BANK
+     31  0811		       69		      lisl	PLAYER_X_POS
+     32  0812		       20 37		      li	55
+     33  0814		       5c		      lr	s,a
+     34  0815		       6e		      lisl	PLAYER_X_POS_NEXT
+     35  0816		       5c		      lr	s,a
+     36  0817				   setPlayerYpos
+     37  0817		       6a		      lisl	PLAYER_Y_POS
+     38  0818		       20 34		      li	52
+     39  081a		       5c		      lr	s,a
+     40  081b				   setMoveDelay
+     41  081b		       6b		      lisl	PLAYER_MOVE_DELAY_SECOND
+     42  081c		       20 ff		      li	PLAYER_MOVE_DELAY_SECOND_SVALUE
+     43  081e		       5c		      lr	s,a
+     44  081f		       6c		      lisl	PLAYER_MOVE_DELAY_MAIN
+     45  0820		       20 02		      li	PLAYER_MOVE_DELAY_MAIN_SVALUE
+     46  0822		       5c		      lr	s,a
+     47  0823				   renderStartPlayer
+     48  0823		       20 40		      li	PLAYER_COLOR
+     49  0825		       58		      lr	8,a
+     50  0826		       28 00 00 	      pi	SUB_renderplayer
+     51  0829
+     52  0829				   MAIN_LOOP
+     53  0829				   readInputSaveInA
+     54  0829		       70		      clr
+     55  082a		       b0		      outs	0
+     56  082b		       b1		      outs	1
+     57  082c		       a1		      ins	1
+     58  082d		       18		      com
+     59  082e		       6d		      lisl	PLAYER_1_JOYSTICK
+     60  082f		       5c		      lr	s,a
+     61  0830				   checkIfAnyMove
+     62  0830		       21 03		      ni	%00000011
+     63  0832		       84 f6		      bz	MAIN_LOOP
+     64  0834				   delayChecks
+     65  0834		       6b		      lisl	PLAYER_MOVE_DELAY_SECOND
+     66  0835		       4c		      lr	a,s
+     67  0836		       24 ff		      ai	$ff
+     68  0838		       5c		      lr	s,a
+     69  0839		       25 00		      ci	0
+     70  083b		       94 ed		      bnz	MAIN_LOOP
+     71  083d		       20 ff		      li	PLAYER_MOVE_DELAY_SECOND_SVALUE
+     72  083f		       5c		      lr	s,a
+     73  0840		       6c		      lisl	PLAYER_MOVE_DELAY_MAIN
+     74  0841		       4c		      lr	a,s
+     75  0842		       24 ff		      ai	$ff
+     76  0844		       5c		      lr	s,a
+     77  0845		       25 00		      ci	0
+     78  0847		       94 e1		      bnz	MAIN_LOOP
+     79  0849		       20 02		      li	PLAYER_MOVE_DELAY_MAIN_SVALUE
+     80  084b		       5c		      lr	s,a
+     81  084c				   checkJoystickRight
+     82  084c		       6d		      lisl	PLAYER_1_JOYSTICK
+     83  084d		       4c		      lr	a,s
+     84  084e		       21 01		      ni	%00000001
+     85  0850		       00 00		      bz	checkJoystickLeft
+     86  0852		       69		      lisl	PLAYER_X_POS
+     87  0853		       4c		      lr	a,s
+     88  0854		       25 5f		      ci	95
+     89  0856		       00 00		      bz	checkJoystickLeft
+     90  0858
+     91  0858		       69		      lisl	PLAYER_X_POS
+     92  0859		       4c		      lr	a,s
+     93  085a		       1f		      inc
+     94  085b		       6e		      lisl	PLAYER_X_POS_NEXT
+     95  085c		       5c		      lr	s,a
+     96  085d				   checkJoystickLeft
+     97  085d		       6d		      lisl	PLAYER_1_JOYSTICK
+     98  085e		       4c		      lr	a,s
+     99  085f		       21 02		      ni	%00000010
+    100  0861		       00 00		      bz	clearPlayerPixels
+    101  0863		       69		      lisl	PLAYER_X_POS
+    102  0864		       4c		      lr	a,s
+    103  0865		       25 0a		      ci	10
+    104  0867		       00 00		      bz	clearPlayerPixels
+    105  0869
+    106  0869		       69		      lisl	PLAYER_X_POS
+    107  086a		       4c		      lr	a,s
+    108  086b		       24 ff		      ai	$ff
+    109  086d		       6e		      lisl	PLAYER_X_POS_NEXT
+    110  086e		       5c		      lr	s,a
+    111  086f				   clearPlayerPixels
+    112  086f		       20 c0		      li	COLOR_BACKGROUND
+    113  0871		       58		      lr	8,a
+    114  0872		       28 00 00 	      pi	SUB_renderplayer
+    115  0875
+    116  0875		       6e		      lisl	PLAYER_X_POS_NEXT
+    117  0876		       4c		      lr	a,s
+    118  0877		       69		      lisl	PLAYER_X_POS
+    119  0878		       5c		      lr	s,a
+    120  0879				   renderNewPlayerPos
+    121  0879		       20 40		      li	PLAYER_COLOR
+    122  087b		       58		      lr	8,a
+    123  087c		       28 00 00 	      pi	SUB_renderplayer
+    124  087f		       90 a9		      br	MAIN_LOOP
+    125  0881
+    126  0881
+    127  0881
+    128  0881
+    129  0881
+    130  0881
+    131  0881
+    132  0881				   SUBS
+    133  0881				   SUB_renderplayer
+    134  0881		       63		      lisu	PLAYER_BANK
+    135  0882				   setColor
+    136  0882		       48		      lr	a,8
+    137  0883		       b1		      outs	1
+    138  0884				   setXCounter
+    139  0884		       20 00		      li	0
+    140  0886		       59		      lr	9,a
+    141  0887				   setYCounter
+    142  0887		       20 00		      li	0
+    143  0889		       5a		      lr	10,a
+    144  088a				   loadPositions
+    145  088a		       69		      lisl	PLAYER_X_POS
+    146  088b		       4c		      lr	a,s
+    147  088c		       5b		      lr	11,a
+    148  088d		       6a		      lisl	PLAYER_Y_POS
+    149  088e		       4c		      lr	a,s
+    150  088f		       5c		      lr	12,a
+    151  0890				   loadBitMapStartPoint
+    152  0890		       2a 00 00 	      dci	SPACESHIP_BITMAP
+    153  0893				   readNextRow
+    154  0893		       16		      lm
+    155  0894		       56		      lr	6,a
+    156  0895				   testBit
+    157  0895		       46		      lr	a,6
+    158  0896		       21 80		      ni	%10000000
+    159  0898		       00 00		      bz	increaseCounters
+    160  089a				   setPixelXpos
+    161  089a		       49		      lr	a,9
+    162  089b		       cb		      as	11
+    163  089c		       18		      com
+    164  089d		       b4		      outs	4
+    165  089e				   setPixelYPos
+    166  089e		       4a		      lr	a,10
+    167  089f		       cc		      as	12
+    168  08a0		       18		      com
+    169  08a1		       21 3f		      ni	$3f
+    170  08a3		       b5		      outs	5
+    171  08a4				   render
+    172  08a4		       20 60		      li	$60
+    173  08a6		       b0		      outs	0
+    174  08a7		       20 40		      li	$40
+    175  08a9		       b0		      outs	0
+    176  08aa				   increaseCounters
+    177  08aa		       49		      lr	a,9
+    178  08ab		       1f		      inc
+    179  08ac		       59		      lr	9,a
+    180  08ad		       25 08		      ci	8
+    181  08af		       00 00		      bz	prepareNextRow
+    182  08b1		       00 00		      bnz	shiftBit
+    183  08b3				   shiftBit
+    184  08b3		       46		      lr	a,6
+    185  08b4		       13		      sl	1
+    186  08b5		       56		      lr	6,a
+    187  08b6		       90 de		      br	testBit
+    188  08b8				   prepareNextRow
+    189  08b8		       20 00		      li	0
+    190  08ba		       59		      lr	9,a
+    191  08bb		       4a		      lr	a,10
+    192  08bc		       1f		      inc
+    193  08bd		       5a		      lr	10,a
+    194  08be		       25 05		      ci	5
+    195  08c0		       94 d2		      bnz	readNextRow
+    196  08c2		       1c		      pop
+    197  08c3
+    198  08c3				   SPACESHIP_BITMAP
+    199  08c3		       18		      .byte.b	%00011000
+    200  08c4		       3c		      .byte.b	%00111100
+    201  08c5		       3c		      .byte.b	%00111100
+    202  08c6		       ff		      .byte.b	%11111111
+    203  08c7		       3c		      .byte.b	%00111100
+    204  08c8
+    205  08c8
+    206  1fff					      org	$1FFF
+    207  1fff		       ff		      .byte.b	$FF
+------- FILE E:\CHANNEL F\ChannelFDev\hello\main.asm LEVEL 1 PASS 2
+      1  1fff					      processor	f8
+------- FILE ves.h LEVEL 2 PASS 2
+      0  2000 ????				      include	"ves.h"
+      1  2000 ????						; VES.H
+      2  2000 ????						; Fairchild Channel F Header
+      3  2000 ????						; Version 1.01, 2/NOVEMBER/2004
+      4  2000 ????
+      5  2000 ????	       00 65	   VERSION_CHANNELF =	101
+      6  2000 ????	       00 65	   VERSION_VES =	101
+      7  2000 ????
+      8  2000 ????						; THIS IS A PRELIMINARY RELEASE OF *THE* "STANDARD" VES.H
+      9  2000 ????						; THIS FILE IS EXPLICITLY SUPPORTED AS A DASM-PREFERRED COMPANION FILE
+     10  2000 ????						; PLEASE DO *NOT* REDISTRIBUTE THIS FILE!
+     11  2000 ????						;
+     12  2000 ????						; This file defines hardware registers and memory mapping for the
+     13  2000 ????						; Fairchild Channel-F. It is distributed as a companion machine-specific support package
+     14  2000 ????						; for the DASM compiler. Updates to this file, DASM, and associated tools are
+     15  2000 ????						; available at at http://www.atari2600.org/dasm
+     16  2000 ????						;
+     17  2000 ????						; Many thanks to the original author(s) of this file, and to everyone who has
+     18  2000 ????						; contributed to understanding the Channel-F.	If you take issue with the
+     19  2000 ????						; contents, or naming of registers, please write to me (atari2600@taswegian.com)
+     20  2000 ????						; with your views.  Please contribute, if you think you can improve this
+     21  2000 ????						; file!
+     22  2000 ????						;
+     23  2000 ????						; Latest Revisions...
+     24  2000 ????						; 1.01   2/NOV/2004	Kevin Lipe's version (combined macro/header)
+     25  2000 ????						;			renamed to VES.H
+     26  2000 ????						;			alternates provided for deprecated equates
+     27  2000 ????						;			ALL hardware/BIOS equates now in uppercase and prefixed
+     28  2000 ????						; 1.00  31/OCT/2004	- initial release
+     29  2000 ????
+     30  2000 ????
+     31  2000 ????
+     32  2000 ????						; Please contribute Channel-F header code to atari2600@taswegian.com
+     33  2000 ????
+     34  2000 ????
+     35  2000 ????
+     36  2000 ????			   INCLUDE_DEPRECATED		; remove to DISABLE deprecated equates
+     37  2000 ????
+     38  2000 ????
+     39  2000 ????						;-------------------------------------------------------------------------------
+     40  2000 ????						; BIOS Calls
+     41  2000 ????						;------------------------
+     42  2000 ????
+     43  2000 ????	       00 d0	   BIOS_CLEAR_SCREEN =	$00d0	; uses r31
+     44  2000 ????	       00 8f	   BIOS_DELAY =	$008f
+     45  2000 ????	       01 07	   BIOS_PUSH_K =	$0107	; used to allow more subroutine stack space
+     46  2000 ????	       01 1e	   BIOS_POP_K =	$011e
+     47  2000 ????	       06 79	   BIOS_DRAW_CHARACTER =	$0679
+     48  2000 ????
+     49  2000 ????						;-------------------------------------------------------------------------------
+     50  2000 ????						; Colors
+     51  2000 ????
+     52  2000 ????	       00 40	   COLOR_RED  =	$40
+     53  2000 ????	       00 80	   COLOR_BLUE =	$80
+     54  2000 ????	       00 00	   COLOR_GREEN =	$00
+     55  2000 ????	       00 c0	   COLOR_BACKGROUND =	$C0
+     56  2000 ????
+     57  2000 ????						; BAckground Colors
+     58  2000 ????
+     59  2000 ????	       00 d6	   BK_COLOR_GREY =	$d6
+     60  2000 ????	       00 93	   BK_COLOR_BLUE =	$93
+     61  2000 ????	       00 c0	   BK_COLOR_GREEN =	$c0
+     62  2000 ????	       00 21	   BK_COLOR_BLACK =	$21
+     63  2000 ????
+     64  2000 ????						; Alternate (European) spellings...
+     65  2000 ????
+     66  2000 ????	       00 40	   COLOUR_RES =	COLOR_RED
+     67  2000 ????	       00 80	   COLOUR_BLUE =	COLOR_BLUE
+     68  2000 ????	       00 00	   COLOUR_GREEN =	COLOR_GREEN
+     69  2000 ????	       00 c0	   COLOUR_BACKGROUND =	COLOR_BACKGROUND
+     70  2000 ????
+     71  2000 ????						;-------------------------------------------------------------------------------
+     72  2000 ????						; DEPRECATED equates.
+     73  2000 ????						; These present to be compatible with existing equate usage.  
+     74  2000 ????						; DO NOT USE THESE IN NEW CODE -- WE WANT TO GET RID OF THEM!
+     75  2000 ????
+     76  2000 ????			  -	      IFCONST	INCLUDE_DEPRECATED
+     77  2000 ????			  -
+     78  2000 ????			  -clrscrn    =	BIOS_CLEAR_SCREEN	; DEPRECATED!
+     79  2000 ????			  -delay      =	BIOS_DELAY	; DEPRECATED!
+     80  2000 ????			  -pushk      =	BIOS_PUSH_K	; DEPRECATED!
+     81  2000 ????			  -popk       =	BIOS_POP_K	; DEPRECATED!
+     82  2000 ????			  -drawchar   =	BIOS_DRAW_CHARACTER	; DEPRECATED!
+     83  2000 ????			  -
+     84  2000 ????			  -red	      =	COLOR_RED	; DEPRECATED!
+     85  2000 ????			  -blue       =	COLOR_BLUE	; DEPRECATED
+     86  2000 ????			  -green      =	COLOR_GREEN	; DEPRECATED
+     87  2000 ????			  -bkg	      =	COLOR_BACKGROUND	; DEPRECATED
+     88  2000 ????			  -
+     89  2000 ????				      ENDIF
+     90  2000 ????
+     91  2000 ????						;------------------------
+     92  2000 ????						; Schach RAM
+     93  2000 ????						;------------------------
+     94  2000 ????	       28 00	   ram	      =	$2800	;location of RAM available in Schach cartridge
+     95  2000 ????
+     96  2000 ????						;===================================================================
+     97  2000 ????						; M A C R O S
+     98  2000 ????						;===================================================================
+     99  2000 ????
+    100  2000 ????						;-------------------------
+    101  2000 ????						; CARTRIDGE_START
+    102  2000 ????						; Original Author: Sean Riddle
+    103  2000 ????						; Inserts the $55 that signals a valid Channel F cartridge and an
+    104  2000 ????						; unused byte, which places the VES at the cartridge entry point, $802.
+    105  2000 ????
+    106  2000 ????				      MAC	cartridge_start
+    107  2000 ????				      .byte	$55, $00	; valid cart indicator, unused byte
+    108  2000 ????				      ENDM
+    109  2000 ????
+    110  2000 ????						;-------------------------
+    111  2000 ????						; CARTRIDGE_INIT
+    112  2000 ????						; Original Author: Sean Riddle
+    113  2000 ????						; Initalizes the hardware and clears the complement flag.
+    114  2000 ????
+    115  2000 ????				      MAC	cartridge_init
+    116  2000 ????						; initalize the hardware
+    117  2000 ????				      lis	0
+    118  2000 ????				      outs	1
+    119  2000 ????				      outs	4
+    120  2000 ????				      outs	5
+    121  2000 ????				      outs	0
+    122  2000 ????
+    123  2000 ????						; clear the complement flag (r32)
+    124  2000 ????				      lisu	4
+    125  2000 ????				      lisl	0
+    126  2000 ????				      lr	S, A
+    127  2000 ????				      ENDM
+    128  2000 ????
+    129  2000 ????						;-------------------------
+    130  2000 ????						; PROMPTS_NO_T
+    131  2000 ????						; Original Author: Sean Riddle
+    132  2000 ????						; This code functions the same as the "prompts" section of the BIOS,
+    133  2000 ????						; but this code doesn't have a "T?" prompt, so it's useful in games that
+    134  2000 ????						; don't have time limits or settings.
+    135  2000 ????
+    136  2000 ????				      MAC	prompts_not
+    137  2000 ????			   prompts    SUBROUTINE
+    138  2000 ????				      LR	K,P	; 
+    139  2000 ????				      PI	pushk	; 
+    140  2000 ????			   .prompts2  LI	$85	; red 5 (S)
+    141  2000 ????				      LR	$0,A	; 
+    142  2000 ????				      PI	prompt	; 
+    143  2000 ????				      LR	A,$4	; 
+    144  2000 ????				      CI	$08	; is it button 4, Start?
+    145  2000 ????				      BF	$4,.notbut4	; no, check others
+    146  2000 ????			   .notbut2
+    147  2000 ????				      PI	popk	; yes, return
+    148  2000 ????				      PK		; 
+    149  2000 ????
+    150  2000 ????			   .notbut4   CI	$02	; is it button 2, Mode?
+    151  2000 ????				      BF	$4,.notbut2	; 
+    152  2000 ????				      LI	$8e	; red M
+    153  2000 ????				      LR	$0,A	; 
+    154  2000 ????				      PI	prompt	; 
+    155  2000 ????				      LISU	3	; 
+    156  2000 ????				      LISL	6	; 
+    157  2000 ????				      LR	A,(IS)	; 
+    158  2000 ????				      as	4	;add the mode to the game #
+    159  2000 ????				      LR	(IS),A	; 
+    160  2000 ????				      BF	$0,.prompts2	; 
+    161  2000 ????				      ENDM
+    162  2000 ????
+    163  2000 ????						;-------------------------
+    164  2000 ????						; SETISAR
+    165  2000 ????						; Original Author: Blackbird
+    166  2000 ????						; Sets the ISAR to a register number, using lisu and lisl
+    167  2000 ????
+    168  2000 ????				      MAC	setisar
+    169  2000 ????				      lisu	[[{1}] >> 3]
+    170  2000 ????				      lisl	[[{1}] & %111]
+    171  2000 ????				      ENDM
+    172  2000 ????						;-------------------------------------------------------------------------------
+    173  2000 ????						; The following required for back-compatibility with code which does not use
+    174  2000 ????						; segments.
+    175  2000 ????
+    176  2000 ????				      SEG
+    177  2000 ????
+    178  2000 ????						; EOF
+------- FILE E:\CHANNEL F\ChannelFDev\hello\main.asm
+      3  2000 ????
+      4  0800					      org	$0800
+      0  0800					      CARTRIDGE_START
+      1  0800		       55 00		      .byte.b	$55, $00
+      0  0802					      CARTRIDGE_INIT
+      1  0802
+      2  0802		       70		      lis	0
+      3  0803		       b1		      outs	1
+      4  0804		       b4		      outs	4
+      5  0805		       b5		      outs	5
+      6  0806		       b0		      outs	0
+      7  0807
+      8  0807
+      9  0807		       64		      lisu	4
+     10  0808		       68		      lisl	0
+     11  0809		       5c		      lr	S, A
+      7  080a
+      8  080a		       00 40	   PLAYER_COLOR =	COLOR_RED
+      9  080a
+     10  080a		       00 ff	   PLAYER_MOVE_DELAY_SECOND_SVALUE =	255
+     11  080a		       00 02	   PLAYER_MOVE_DELAY_MAIN_SVALUE =	2
+     12  080a
+     13  080a
+     14  080a		       00 03	   PLAYER_BANK =	3
+     15  080a
+     16  080a		       00 01	   PLAYER_X_POS =	1
+     17  080a		       00 02	   PLAYER_Y_POS =	2
+     18  080a		       00 03	   PLAYER_MOVE_DELAY_SECOND =	3
+     19  080a		       00 04	   PLAYER_MOVE_DELAY_MAIN =	4
+     20  080a		       00 05	   PLAYER_1_JOYSTICK =	5
+     21  080a		       00 06	   PLAYER_X_POS_NEXT =	6
+     22  080a		       00 07	   PLAYER_Y_POS_NEXT =	7
+     23  080a
+     24  080a				   SET_DEFAULTS
+     25  080a				   setbackground
+     26  080a		       20 93		      li	BK_COLOR_BLUE
+     27  080c		       53		      lr	3,a
+     28  080d		       28 00 d0 	      pi	BIOS_CLEAR_SCREEN
+     29  0810				   setPlayerXpos
+     30  0810		       63		      lisu	PLAYER_BANK
+     31  0811		       69		      lisl	PLAYER_X_POS
+     32  0812		       20 37		      li	55
+     33  0814		       5c		      lr	s,a
+     34  0815		       6e		      lisl	PLAYER_X_POS_NEXT
+     35  0816		       5c		      lr	s,a
+     36  0817				   setPlayerYpos
+     37  0817		       6a		      lisl	PLAYER_Y_POS
+     38  0818		       20 34		      li	52
+     39  081a		       5c		      lr	s,a
+     40  081b				   setMoveDelay
+     41  081b		       6b		      lisl	PLAYER_MOVE_DELAY_SECOND
+     42  081c		       20 ff		      li	PLAYER_MOVE_DELAY_SECOND_SVALUE
+     43  081e		       5c		      lr	s,a
+     44  081f		       6c		      lisl	PLAYER_MOVE_DELAY_MAIN
+     45  0820		       20 02		      li	PLAYER_MOVE_DELAY_MAIN_SVALUE
+     46  0822		       5c		      lr	s,a
+     47  0823				   renderStartPlayer
+     48  0823		       20 40		      li	PLAYER_COLOR
+     49  0825		       58		      lr	8,a
+     50  0826		       28 08 81 	      pi	SUB_renderplayer
+     51  0829
+     52  0829				   MAIN_LOOP
+     53  0829				   readInputSaveInA
+     54  0829		       70		      clr
+     55  082a		       b0		      outs	0
+     56  082b		       b1		      outs	1
+     57  082c		       a1		      ins	1
+     58  082d		       18		      com
+     59  082e		       6d		      lisl	PLAYER_1_JOYSTICK
+     60  082f		       5c		      lr	s,a
+     61  0830				   checkIfAnyMove
+     62  0830		       21 03		      ni	%00000011
+     63  0832		       84 f6		      bz	MAIN_LOOP
+     64  0834				   delayChecks
+     65  0834		       6b		      lisl	PLAYER_MOVE_DELAY_SECOND
+     66  0835		       4c		      lr	a,s
+     67  0836		       24 ff		      ai	$ff
+     68  0838		       5c		      lr	s,a
+     69  0839		       25 00		      ci	0
+     70  083b		       94 ed		      bnz	MAIN_LOOP
+     71  083d		       20 ff		      li	PLAYER_MOVE_DELAY_SECOND_SVALUE
+     72  083f		       5c		      lr	s,a
+     73  0840		       6c		      lisl	PLAYER_MOVE_DELAY_MAIN
+     74  0841		       4c		      lr	a,s
+     75  0842		       24 ff		      ai	$ff
+     76  0844		       5c		      lr	s,a
+     77  0845		       25 00		      ci	0
+     78  0847		       94 e1		      bnz	MAIN_LOOP
+     79  0849		       20 02		      li	PLAYER_MOVE_DELAY_MAIN_SVALUE
+     80  084b		       5c		      lr	s,a
+     81  084c				   checkJoystickRight
+     82  084c		       6d		      lisl	PLAYER_1_JOYSTICK
+     83  084d		       4c		      lr	a,s
+     84  084e		       21 01		      ni	%00000001
+     85  0850		       84 0c		      bz	checkJoystickLeft
+     86  0852		       69		      lisl	PLAYER_X_POS
+     87  0853		       4c		      lr	a,s
+     88  0854		       25 5f		      ci	95
+     89  0856		       84 06		      bz	checkJoystickLeft
+     90  0858
+     91  0858		       69		      lisl	PLAYER_X_POS
+     92  0859		       4c		      lr	a,s
+     93  085a		       1f		      inc
+     94  085b		       6e		      lisl	PLAYER_X_POS_NEXT
+     95  085c		       5c		      lr	s,a
+     96  085d				   checkJoystickLeft
+     97  085d		       6d		      lisl	PLAYER_1_JOYSTICK
+     98  085e		       4c		      lr	a,s
+     99  085f		       21 02		      ni	%00000010
+    100  0861		       84 0d		      bz	clearPlayerPixels
+    101  0863		       69		      lisl	PLAYER_X_POS
+    102  0864		       4c		      lr	a,s
+    103  0865		       25 0a		      ci	10
+    104  0867		       84 07		      bz	clearPlayerPixels
+    105  0869
+    106  0869		       69		      lisl	PLAYER_X_POS
+    107  086a		       4c		      lr	a,s
+    108  086b		       24 ff		      ai	$ff
+    109  086d		       6e		      lisl	PLAYER_X_POS_NEXT
+    110  086e		       5c		      lr	s,a
+    111  086f				   clearPlayerPixels
+    112  086f		       20 c0		      li	COLOR_BACKGROUND
+    113  0871		       58		      lr	8,a
+    114  0872		       28 08 81 	      pi	SUB_renderplayer
+    115  0875
+    116  0875		       6e		      lisl	PLAYER_X_POS_NEXT
+    117  0876		       4c		      lr	a,s
+    118  0877		       69		      lisl	PLAYER_X_POS
+    119  0878		       5c		      lr	s,a
+    120  0879				   renderNewPlayerPos
+    121  0879		       20 40		      li	PLAYER_COLOR
+    122  087b		       58		      lr	8,a
+    123  087c		       28 08 81 	      pi	SUB_renderplayer
+    124  087f		       90 a9		      br	MAIN_LOOP
+    125  0881
+    126  0881
+    127  0881
+    128  0881
+    129  0881
+    130  0881
+    131  0881
+    132  0881				   SUBS
+    133  0881				   SUB_renderplayer
+    134  0881		       63		      lisu	PLAYER_BANK
+    135  0882				   setColor
+    136  0882		       48		      lr	a,8
+    137  0883		       b1		      outs	1
+    138  0884				   setXCounter
+    139  0884		       20 00		      li	0
+    140  0886		       59		      lr	9,a
+    141  0887				   setYCounter
+    142  0887		       20 00		      li	0
+    143  0889		       5a		      lr	10,a
+    144  088a				   loadPositions
+    145  088a		       69		      lisl	PLAYER_X_POS
+    146  088b		       4c		      lr	a,s
+    147  088c		       5b		      lr	11,a
+    148  088d		       6a		      lisl	PLAYER_Y_POS
+    149  088e		       4c		      lr	a,s
+    150  088f		       5c		      lr	12,a
+    151  0890				   loadBitMapStartPoint
+    152  0890		       2a 08 c3 	      dci	SPACESHIP_BITMAP
+    153  0893				   readNextRow
+    154  0893		       16		      lm
+    155  0894		       56		      lr	6,a
+    156  0895				   testBit
+    157  0895		       46		      lr	a,6
+    158  0896		       21 80		      ni	%10000000
+    159  0898		       84 11		      bz	increaseCounters
+    160  089a				   setPixelXpos
+    161  089a		       49		      lr	a,9
+    162  089b		       cb		      as	11
+    163  089c		       18		      com
+    164  089d		       b4		      outs	4
+    165  089e				   setPixelYPos
+    166  089e		       4a		      lr	a,10
+    167  089f		       cc		      as	12
+    168  08a0		       18		      com
+    169  08a1		       21 3f		      ni	$3f
+    170  08a3		       b5		      outs	5
+    171  08a4				   render
+    172  08a4		       20 60		      li	$60
+    173  08a6		       b0		      outs	0
+    174  08a7		       20 40		      li	$40
+    175  08a9		       b0		      outs	0
+    176  08aa				   increaseCounters
+    177  08aa		       49		      lr	a,9
+    178  08ab		       1f		      inc
+    179  08ac		       59		      lr	9,a
+    180  08ad		       25 08		      ci	8
+    181  08af		       84 08		      bz	prepareNextRow
+    182  08b1		       94 01		      bnz	shiftBit
+    183  08b3				   shiftBit
+    184  08b3		       46		      lr	a,6
+    185  08b4		       13		      sl	1
+    186  08b5		       56		      lr	6,a
+    187  08b6		       90 de		      br	testBit
+    188  08b8				   prepareNextRow
+    189  08b8		       20 00		      li	0
+    190  08ba		       59		      lr	9,a
+    191  08bb		       4a		      lr	a,10
+    192  08bc		       1f		      inc
+    193  08bd		       5a		      lr	10,a
+    194  08be		       25 05		      ci	5
+    195  08c0		       94 d2		      bnz	readNextRow
+    196  08c2		       1c		      pop
+    197  08c3
+    198  08c3				   SPACESHIP_BITMAP
+    199  08c3		       18		      .byte.b	%00011000
+    200  08c4		       3c		      .byte.b	%00111100
+    201  08c5		       3c		      .byte.b	%00111100
+    202  08c6		       ff		      .byte.b	%11111111
+    203  08c7		       3c		      .byte.b	%00111100
+    204  08c8
+    205  08c8
+    206  1fff					      org	$1FFF
+    207  1fff		       ff		      .byte.b	$FF
