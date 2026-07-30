@@ -5,30 +5,29 @@
         CARTRIDGE_START
         CARTRIDGE_INIT
 
-TICK_COUNTER_START_VALUE = 255
-
-PLAYER_COLOR_VALUE = COLOR_RED
-BACKGROUND_COLOR_VALUE = BK_COLOR_GREEN
-PLAYER_MOVE_TICKDELAY_SVALUE = 2
-MISSILE_MOVE_TICKDELAY_SVALUE = 2
-MISSILE_START_X_OFFSET_VALUE = 3
-MISSILE_START_Y_OFFSET_VALUE = 48
-
-MAIN_BANK = 2
-TICK_COUNTER = 0
+PLAYER_COLOR = COLOR_RED
+PLAYER_MOVE_DELAY_SECOND_SVALUE = 255
+PLAYER_MOVE_DELAY_MAIN_SVALUE = 2
+MISSILE_MOVE_DELAY_MAIN_SVALUE = 2
+MISSILE_MOVE_DELAY_SECOND_SVALUE = 255
+MISSILE_START_X_OFFSET = 3
+MISSILE_START_Y_VALUE = 48
 
 PLAYER_BANK = 3
-PLAYER_STATUS = 0
 PLAYER_X_POS = 1
 PLAYER_Y_POS = 2
-PLAYER_MOVE_TICKDELAY = 3
+PLAYER_MOVE_DELAY_SECOND = 3
+PLAYER_MOVE_DELAY_MAIN = 4
 PLAYER_1_JOYSTICK = 5
+PLAYER_X_POS_NEXT = 6
+PLAYER_Y_POS_NEXT = 7
 
 MISSILE_BANK = 4
-MISSILE_STATUS = 0
+MISSILE_Y_POS = 0
 MISSILE_X_POS = 1
-MISSILE_Y_POS = 2
-MISSILE_MOVE_TICKDELAY = 3
+MISSILE_STATUS = 2
+MISSILE_MOVE_DELAY_SECOND = 3
+MISSILE_MOVE_DELAY_MAIN = 4
 
 
 SET_DEFAULTS:
@@ -48,45 +47,28 @@ setPlayerYpos
         li 52
         lr s,a
 setMoveDelay:
-        lisl PLAYER_MOVE_TICKDELAY
-        li PLAYER_MOVE_TICKDELAY_SVALUE
+        lisl PLAYER_MOVE_DELAY_SECOND
+        li PLAYER_MOVE_DELAY_SECOND_SVALUE
+        lr s,a
+        lisl PLAYER_MOVE_DELAY_MAIN
+        li PLAYER_MOVE_DELAY_MAIN_SVALUE
         lr s,a
 setMissileMoveDelay:
         lisu MISSILE_BANK
-        lisl MISSILE_MOVE_TICKDELAY
-        li MISSILE_MOVE_TICKDELAY_SVALUE
+        lisl MISSILE_MOVE_DELAY_MAIN
+        li MISSILE_MOVE_DELAY_MAIN_SVALUE
         lr s,a 
-setTickCounter:
-        lisu MAIN_BANK
-        lisl TICK_COUNTER
-        li TICK_COUNTER_START_VALUE
+        lisl MISSILE_MOVE_DELAY_SECOND
+        li MISSILE_MOVE_DELAY_SECOND_SVALUE
         lr s,a 
 renderStartPlayer:
         li PLAYER_COLOR
         lr 8,a
         pi SUB_renderplayer
 
-
-
-
-
 MAIN_LOOP:
-ML_readInput:
-        br INPUT_KERNEL
-ML_spawnPlayerMissile:
-        br SPAWN_MISSILE_KERNEL
-ML_updateTick:
-        br TICK_KERNEL
-ML_TICK_TRIGGERED:
-ML_playerMovement:
-
-
-
-
-
-INPUT_KERNEL:
-readAndSaveInput:
         lisu PLAYER_BANK
+readInputAndSave:
         clr
         outs 0
         outs 1
@@ -94,77 +76,6 @@ readAndSaveInput:
         com
         lisl PLAYER_1_JOYSTICK
         lr s,a
-        br ML_spawnPlayerMissile
-
-
-
-
-
-TICK_KERNEL:
-updateTick:
-        lisu MAIN_BANK
-        lisl TICK_COUNTER
-        lr a,s 
-        ai $ff 
-        bnz MAIN_LOOP
-triggerTick:
-        li TICK_COUNTER_START_VALUE
-        lr s,a 
-        br ML_TICK_TRIGGERED
-
-
-
-
-SPAWN_MISSILE_KERNEL:
-checkIfmissileFired:
-        lisu MISSILE_BANK
-        lisl MISSILE_STATUS
-        lr a,s
-        ni %00000001
-        bnz ML_updateTick
-checkFireButton:
-        lisu PLAYER_BANK
-        lisl PLAYER_1_JOYSTICK
-        lr a,s
-        ni %00000100
-        bz ML_updateTick
-setMissileSpawnPos:
-        lisl PLAYER_X_POS
-        lr a,s 
-        ai MISSILE_START_X_OFFSET_VALUE
-        lisu MISSILE_BANK
-        lisl MISSILE_X_POS
-        lr s,a
-        li MISSILE_START_Y_VALUE
-        lisl MISSILE_Y_POS
-        lr s,a
-        lisl MISSILE_STATUS
-        lr a,s
-        oi %00000001
-        lr s,a 
-renderMissile:
-        li  COLOR_BLUE
-        outs 1
-        lisl MISSILE_X_POS
-        lr a,s 
-        com
-        outs 4
-        lisl MISSILE_Y_POS
-        lr a,s
-        com 
-        ni $3f
-        outs 5
-        li  $60
-        outs 0
-        li  $40
-        outs 0
-        jmp ML_updateTick
-
-
-
-
-
-
 checkIfAnyMove:
         ni %00000011
         bz checkIfmissileFired
@@ -231,12 +142,49 @@ renderNewPlayerPos:
         li PLAYER_COLOR
         lr 8,a
         pi SUB_renderplayer
-
-
 MISSILE_KERNEL:
-
-
-
+checkIfmissileFired:
+        lisu MISSILE_BANK
+        lisl MISSILE_STATUS
+        lr a,s
+        ni %00000001
+        bnz renderMissile
+checkFireButton:
+        lisu PLAYER_BANK
+        lisl PLAYER_1_JOYSTICK
+        lr a,s
+        ni %00000100
+        bz MAIN_LOOP
+loadPlayerPosForRef:
+        lisl PLAYER_X_POS
+        lr a,s 
+        ai MISSILE_START_X_OFFSET
+        lisu MISSILE_BANK
+        lisl MISSILE_X_POS
+        lr s,a
+        li MISSILE_START_Y_VALUE
+        lisl MISSILE_Y_POS
+        lr s,a
+        lisl MISSILE_STATUS
+        lr a,s
+        oi %00000001
+        lr s,a 
+renderMissile:
+        li  COLOR_BLUE
+        outs 1
+        lisl MISSILE_X_POS
+        lr a,s 
+        com
+        outs 4
+        lisl MISSILE_Y_POS
+        lr a,s
+        com 
+        ni $3f
+        outs 5
+        li  $60
+        outs 0
+        li  $40
+        outs 0
 checkMissileDelay:
         lisl MISSILE_MOVE_DELAY_SECOND
         lr a,s 
