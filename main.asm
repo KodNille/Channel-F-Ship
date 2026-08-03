@@ -31,37 +31,37 @@ MISSILE_Y_POS = 2
 MISSILE_MOVE_TICKDELAY = 3
 
 
-SET_DEFAULTS:
-setbackground:
+DEFAULTS:
+DEFAULTS_setbackground:
         li BK_COLOR_BLUE
         lr 3,a
         pi BIOS_CLEAR_SCREEN
-setPlayerXpos:
+DEFAULTS_setPlayerXpos:
         lisu PLAYER_BANK
         lisl PLAYER_X_POS
         li 55
         lr s,a
         lisl PLAYER_X_POS_NEXT
         lr s,a
-setPlayerYpos
+DEFAULTS_setPlayerYpos
         lisl PLAYER_Y_POS
         li 52
         lr s,a
-setMoveDelay:
+DEFAULTS_setMoveDelay:
         lisl PLAYER_MOVE_TICKDELAY
         li PLAYER_MOVE_TICKDELAY_SVALUE
         lr s,a
-setMissileMoveDelay:
+DEFAULTS_setMissileMoveDelay:
         lisu MISSILE_BANK
         lisl MISSILE_MOVE_TICKDELAY
         li MISSILE_MOVE_TICKDELAY_SVALUE
         lr s,a 
-setTickCounter:
+DEFAULTS_setTickCounter:
         lisu MAIN_BANK
         lisl TICK_COUNTER
         li TICK_COUNTER_START_VALUE
         lr s,a 
-renderStartPlayer:
+DEFAULTS_renderStartPlayer:
         li PLAYER_COLOR
         lr 8,a
         pi SUB_renderplayer
@@ -70,22 +70,22 @@ renderStartPlayer:
 
 
 
-MAIN_LOOP:
-ML_readInput:
-        br INPUT_KERNEL
-ML_spawnPlayerMissile:
-        br SPAWN_MISSILE_KERNEL
-ML_updateTick:
-        br TICK_KERNEL
-ML_TICK_TRIGGERED:
-ML_playerMovement:
+MAIN:
+MAIN_readInput:
+        br INPUT
+MAIN_spawnPlayerMissile:
+        br MISSILE
+MAIN_updateTick:
+        br TICK
+MAIN_playerMovement:
+        br SHIP
+MAIN_moveMissile:
+        br MOVEMISSILE
 
 
 
-
-
-INPUT_KERNEL:
-readAndSaveInput:
+INPUT:
+INPUT_readAndSaveInput:
         lisu PLAYER_BANK
         clr
         outs 0
@@ -94,41 +94,40 @@ readAndSaveInput:
         com
         lisl PLAYER_1_JOYSTICK
         lr s,a
-        br ML_spawnPlayerMissile
+        br MAIN_spawnPlayerMissile
 
 
 
 
-
-TICK_KERNEL:
-updateTick:
+TICK:
+TICK_updateTick:
         lisu MAIN_BANK
         lisl TICK_COUNTER
         lr a,s 
         ai $ff 
-        bnz MAIN_LOOP
-triggerTick:
+        bnz MAIN
+TICK_triggerTick:
         li TICK_COUNTER_START_VALUE
         lr s,a 
-        br ML_TICK_TRIGGERED
+        br MAIN_playerMovement
 
 
 
 
-SPAWN_MISSILE_KERNEL:
-checkIfmissileFired:
+MISSILE:
+MISSILE_checkIfmissileFired:
         lisu MISSILE_BANK
         lisl MISSILE_STATUS
         lr a,s
         ni %00000001
-        bnz ML_updateTick
-checkFireButton:
+        bnz MAIN_updateTick
+MISSILE_checkFireButton:
         lisu PLAYER_BANK
         lisl PLAYER_1_JOYSTICK
         lr a,s
         ni %00000100
-        bz ML_updateTick
-setMissileSpawnPos:
+        bz MAIN_updateTick
+MISSILE_setMissileSpawnPos:
         lisl PLAYER_X_POS
         lr a,s 
         ai MISSILE_START_X_OFFSET_VALUE
@@ -142,7 +141,7 @@ setMissileSpawnPos:
         lr a,s
         oi %00000001
         lr s,a 
-renderMissile:
+MISSILE_renderMissile:
         li  COLOR_BLUE
         outs 1
         lisl MISSILE_X_POS
@@ -158,7 +157,14 @@ renderMissile:
         outs 0
         li  $40
         outs 0
-        jmp ML_updateTick
+        jmp MAIN_updateTick
+
+
+
+SHIP:
+
+
+
 
 
 
@@ -233,27 +239,17 @@ renderNewPlayerPos:
         pi SUB_renderplayer
 
 
-MISSILE_KERNEL:
 
 
 
-checkMissileDelay:
-        lisl MISSILE_MOVE_DELAY_SECOND
+
+
+MOVEMISSILE:
+MOVEMISSILE_checkMissileDelay:
+        lisl MISSILE_MOVE_TICKDELAY
         lr a,s 
         ai $ff 
-        lr s,a 
-        ci 0
         bnz gobacK
-        li MISSILE_MOVE_DELAY_SECOND_SVALUE
-        lr s,a 
-        lisl MISSILE_MOVE_DELAY_MAIN
-        lr a,s 
-        ai $ff 
-        lr s,a 
-        ci 0
-        bnz gobacK
-        li MISSILE_MOVE_DELAY_MAIN_SVALUE
-        lr s,a 
 moveMissile:
 removeOld:
         li COLOR_BACKGROUND
@@ -351,13 +347,66 @@ prepareNextRow:
         bnz readNextRow
         pop
 
+
+
+
+
+
+
+SUB_DRAW_SIDE:
+SUB_DRAW_SIDE_setPixelColor:
+        lr a,8
+        outs 1 
+SUB_DRAW_SIDE_newRow:
+SUB_DRAW_SIDE_setYPos:
+        lr a,10
+        com
+        ni  $3f
+        outs 5
+SUB_DRAW_SIDE_setXPos:
+        lm 
+        as 9
+        com
+        outs 4
+SUB_DRAW_SIDE_draw:
+        li  $60
+        outs 0
+        li  $40
+        outs 0
+SUB_DRAW_SIDE_reduceIndex:
+        lr a,11
+        ai $ff 
+        lr 11,a 
+        bz SUB_DRAW_SIDE_done
+SUB_DRAW_SIDE_prepareNext:
+        lr a,10 
+        ai $ff 
+        lr 10,a 
+        br SUB_DRAW_SIDE_newRow
+SUB_DRAW_SIDE_done:
+        pop 
+
+
+
+
+
 SPACESHIP_BITMAP:
         .byte %00011000
         .byte %00111100
         .byte %01111110
         .byte %11111111
-        .byte %11111111
-        .byte %00111100
+SPACESHIP_LEFT:
+        .byte 3
+        .byte 2
+        .byte 1
+        .byte 0
+SPACESHIP_RIGHT:
+        .byte 4
+        .byte 5
+        .byte 6
+        .byte 7
+
+
 
 
         org $1FFF
