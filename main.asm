@@ -9,10 +9,11 @@ TICK_COUNTER_START_VALUE = 255
 
 PLAYER_COLOR_VALUE = COLOR_RED
 BACKGROUND_COLOR_VALUE = BK_COLOR_GREEN
-PLAYER_MOVE_TICKDELAY_SVALUE = 2
+PLAYER_MOVE_TICKDELAY_SVALUE = 1
 MISSILE_MOVE_TICKDELAY_SVALUE = 2
 MISSILE_START_X_OFFSET_VALUE = 3
 MISSILE_START_Y_OFFSET_VALUE = 48
+SPACESHIP_SIZE = 4
 
 MAIN_BANK = 2
 TICK_COUNTER = 0
@@ -41,8 +42,6 @@ DEFAULTS_setPlayerXpos:
         lisl PLAYER_X_POS
         li 55
         lr s,a
-        lisl PLAYER_X_POS_NEXT
-        lr s,a
 DEFAULTS_setPlayerYpos
         lisl PLAYER_Y_POS
         li 52
@@ -62,7 +61,7 @@ DEFAULTS_setTickCounter:
         li TICK_COUNTER_START_VALUE
         lr s,a 
 DEFAULTS_renderStartPlayer:
-        li PLAYER_COLOR
+        li PLAYER_COLOR_VALUE
         lr 8,a
         pi SUB_renderplayer
 
@@ -72,15 +71,17 @@ DEFAULTS_renderStartPlayer:
 
 MAIN:
 MAIN_readInput:
-        br INPUT
+        jmp INPUT
 MAIN_spawnPlayerMissile:
-        br MISSILE
+        jmp MISSILE
 MAIN_updateTick:
-        br TICK
+        jmp TICK
 MAIN_playerMovement:
-        br SHIP
+        jmp SHIP
 MAIN_moveMissile:
-        br MOVEMISSILE
+        jmp MOVEMISSILE
+
+
 
 
 
@@ -99,17 +100,21 @@ INPUT_readAndSaveInput:
 
 
 
+
 TICK:
 TICK_updateTick:
         lisu MAIN_BANK
         lisl TICK_COUNTER
         lr a,s 
         ai $ff 
+        lr s,a 
         bnz MAIN
 TICK_triggerTick:
         li TICK_COUNTER_START_VALUE
         lr s,a 
         br MAIN_playerMovement
+
+
 
 
 
@@ -134,7 +139,7 @@ MISSILE_setMissileSpawnPos:
         lisu MISSILE_BANK
         lisl MISSILE_X_POS
         lr s,a
-        li MISSILE_START_Y_VALUE
+        li MISSILE_START_Y_OFFSET_VALUE
         lisl MISSILE_Y_POS
         lr s,a
         lisl MISSILE_STATUS
@@ -162,81 +167,93 @@ MISSILE_renderMissile:
 
 
 SHIP:
-
-
-
-
-
-
-
-
-
-checkIfAnyMove:
-        ni %00000011
-        bz checkIfmissileFired
-delayChecks:
-        lisl PLAYER_MOVE_DELAY_SECOND
-        lr a,s
-        ai $ff
-        lr s,a
-        ci 0
-        bnz jumpToMissleKernel
-        li PLAYER_MOVE_DELAY_SECOND_SVALUE
-        lr s,a
-        lisl PLAYER_MOVE_DELAY_MAIN
+SHIP_checkIfAnyMove:
+        lisu PLAYER_BANK
+        lisl PLAYER_1_JOYSTICK
         lr a,s 
-        ai $ff
-        lr s,a
-        ci 0
-        bnz jumpToMissleKernel
-        li PLAYER_MOVE_DELAY_MAIN_SVALUE
-        lr s,a
-        br checkJoystickRight
-jumpToMissleKernel:
-        jmp MISSILE_KERNEL
-checkJoystickRight:
+        ni %00000011
+        bz SHIP_done
+SHIP_delayCheck:
+        lisl PLAYER_MOVE_TICKDELAY
+        lr a,s 
+        ai $ff 
+        lr s,a 
+        bnz SHIP_done
+        li PLAYER_MOVE_TICKDELAY_SVALUE
+        lr s,a 
+SHIP_checkJoystickRight:
         lisl PLAYER_1_JOYSTICK
         lr a,s
         ni %00000001
-        bz checkJoystickLeft
+        bz SHIP_moveLeft
+SHIP_right_blankLeft:
+        dci SPACESHIP_LEFT 
+        li COLOR_BACKGROUND 
+        lr 8,a 
+        lisl PLAYER_X_POS 
+        lr a,s 
+        lr 9,a 
+        lisl PLAYER_Y_POS 
+        lr a,s 
+        lr 10,a  
+        li SPACESHIP_SIZE 
+        lr 11,a 
+        pi SUB_DRAW_SIDE 
+SHIP_right_updatePos:
         lisl PLAYER_X_POS
-        lr a,s
-        ci 95
-        bz checkJoystickLeft
-        
+        lr a,s 
+        inc 
+        lr s,a 
+SHIP_right_drawRight:
+        dci SPACESHIP_RIGHT
+        li COLOR_RED 
+        lr 8,a 
+        lisl PLAYER_X_POS 
+        lr a,s 
+        lr 9,a 
+        lisl PLAYER_Y_POS
+        lr a,s  
+        lr 10,a  
+        li SPACESHIP_SIZE 
+        lr 11,a 
+        pi SUB_DRAW_SIDE 
+        br SHIP_done
+SHIP_moveLeft:
+SHIP_left_blankRight:
+        dci SPACESHIP_RIGHT 
+        li COLOR_BACKGROUND 
+        lr 8,a 
+        lisl PLAYER_X_POS 
+        lr a,s 
+        lr 9,a  
+        lisl PLAYER_Y_POS 
+        lr a,s 
+        lr 10,a  
+        li SPACESHIP_SIZE 
+        lr 11,a 
+        pi SUB_DRAW_SIDE 
+SHIP_left_updatePos:
         lisl PLAYER_X_POS
-        lr a,s
-        inc
-        lisl PLAYER_X_POS_NEXT
-        lr s,a
-checkJoystickLeft:
-        lisl PLAYER_1_JOYSTICK
-        lr a,s
-        ni %00000010
-        bz clearPlayerPixels
-        lisl PLAYER_X_POS
-        lr a,s
-        ci 10
-        bz clearPlayerPixels
+        lr a,s 
+        ai $ff 
+        lr s,a 
+SHIP_left_drawLeft:
+        dci SPACESHIP_LEFT
+        li COLOR_RED 
+        lr 8,a 
+        lisl PLAYER_X_POS 
+        lr a,s 
+        lr 9,a  
+        lisl PLAYER_Y_POS 
+        lr a,s 
+        lr 10,a  
+        li SPACESHIP_SIZE 
+        lr 11,a 
+        pi SUB_DRAW_SIDE 
+        br SHIP_done
+SHIP_done:
+        jmp MAIN
 
-        lisl PLAYER_X_POS
-        lr a,s
-        ai $ff
-        lisl PLAYER_X_POS_NEXT
-        lr s,a
-clearPlayerPixels:
-        li COLOR_BACKGROUND
-        lr 8,a
-        pi SUB_renderplayer
-
-        lisl PLAYER_X_POS_NEXT
-        lr a,s
-        lisl PLAYER_X_POS
-        lr s,a
-renderNewPlayerPos:
-        li PLAYER_COLOR
-        lr 8,a
-        pi SUB_renderplayer
 
 
 
@@ -246,10 +263,14 @@ renderNewPlayerPos:
 
 MOVEMISSILE:
 MOVEMISSILE_checkMissileDelay:
+        lisu MISSILE_BANK
         lisl MISSILE_MOVE_TICKDELAY
         lr a,s 
         ai $ff 
         bnz gobacK
+MOVEMISSILE_resetTickDelay:
+        li MISSILE_MOVE_TICKDELAY_SVALUE
+        lr s,a
 moveMissile:
 removeOld:
         li COLOR_BACKGROUND
@@ -273,7 +294,7 @@ moveUp:
         ai $ff 
         lr s,a 
 gobacK:
-        jmp MAIN_LOOP
+        jmp MAIN
 
 
 
@@ -343,7 +364,7 @@ prepareNextRow:
         lr a,10
         inc
         lr 10,a
-        ci 6
+        ci 4
         bnz readNextRow
         pop
 
@@ -380,7 +401,7 @@ SUB_DRAW_SIDE_reduceIndex:
         bz SUB_DRAW_SIDE_done
 SUB_DRAW_SIDE_prepareNext:
         lr a,10 
-        ai $ff 
+        inc
         lr 10,a 
         br SUB_DRAW_SIDE_newRow
 SUB_DRAW_SIDE_done:
@@ -405,7 +426,6 @@ SPACESHIP_RIGHT:
         .byte 5
         .byte 6
         .byte 7
-
 
 
 

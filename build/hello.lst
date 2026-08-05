@@ -198,311 +198,432 @@
      10  0808		       68		      lisl	0
      11  0809		       5c		      lr	S, A
       7  080a
-      8  080a		       00 40	   PLAYER_COLOR =	COLOR_RED
-      9  080a		       00 ff	   PLAYER_MOVE_DELAY_SECOND_SVALUE =	255
-     10  080a		       00 02	   PLAYER_MOVE_DELAY_MAIN_SVALUE =	2
-     11  080a		       00 02	   MISSILE_MOVE_DELAY_MAIN_SVALUE =	2
-     12  080a		       00 ff	   MISSILE_MOVE_DELAY_SECOND_SVALUE =	255
-     13  080a		       00 03	   MISSILE_START_X_OFFSET =	3
-     14  080a		       00 30	   MISSILE_START_Y_VALUE =	48
-     15  080a
-     16  080a		       00 03	   PLAYER_BANK =	3
-     17  080a		       00 01	   PLAYER_X_POS =	1
-     18  080a		       00 02	   PLAYER_Y_POS =	2
-     19  080a		       00 03	   PLAYER_MOVE_DELAY_SECOND =	3
-     20  080a		       00 04	   PLAYER_MOVE_DELAY_MAIN =	4
-     21  080a		       00 05	   PLAYER_1_JOYSTICK =	5
-     22  080a		       00 06	   PLAYER_X_POS_NEXT =	6
-     23  080a		       00 07	   PLAYER_Y_POS_NEXT =	7
-     24  080a
-     25  080a		       00 04	   MISSILE_BANK =	4
-     26  080a		       00 00	   MISSILE_Y_POS =	0
-     27  080a		       00 01	   MISSILE_X_POS =	1
-     28  080a		       00 02	   MISSILE_STATUS =	2
-     29  080a		       00 03	   MISSILE_MOVE_DELAY_SECOND =	3
-     30  080a		       00 04	   MISSILE_MOVE_DELAY_MAIN =	4
-     31  080a
-     32  080a
-     33  080a				   SET_DEFAULTS
-     34  080a				   setbackground
-     35  080a		       20 93		      li	BK_COLOR_BLUE
-     36  080c		       53		      lr	3,a
-     37  080d		       28 00 d0 	      pi	BIOS_CLEAR_SCREEN
-     38  0810				   setPlayerXpos
-     39  0810		       63		      lisu	PLAYER_BANK
-     40  0811		       69		      lisl	PLAYER_X_POS
-     41  0812		       20 37		      li	55
-     42  0814		       5c		      lr	s,a
-     43  0815		       6e		      lisl	PLAYER_X_POS_NEXT
-     44  0816		       5c		      lr	s,a
-     45  0817				   setPlayerYpos
-     46  0817		       6a		      lisl	PLAYER_Y_POS
-     47  0818		       20 34		      li	52
-     48  081a		       5c		      lr	s,a
-     49  081b				   setMoveDelay
-     50  081b		       6b		      lisl	PLAYER_MOVE_DELAY_SECOND
-     51  081c		       20 ff		      li	PLAYER_MOVE_DELAY_SECOND_SVALUE
-     52  081e		       5c		      lr	s,a
-     53  081f		       6c		      lisl	PLAYER_MOVE_DELAY_MAIN
-     54  0820		       20 02		      li	PLAYER_MOVE_DELAY_MAIN_SVALUE
-     55  0822		       5c		      lr	s,a
-     56  0823				   setMissileMoveDelay
-     57  0823		       64		      lisu	MISSILE_BANK
-     58  0824		       6c		      lisl	MISSILE_MOVE_DELAY_MAIN
-     59  0825		       20 02		      li	MISSILE_MOVE_DELAY_MAIN_SVALUE
-     60  0827		       5c		      lr	s,a
-     61  0828		       6b		      lisl	MISSILE_MOVE_DELAY_SECOND
-     62  0829		       20 ff		      li	MISSILE_MOVE_DELAY_SECOND_SVALUE
-     63  082b		       5c		      lr	s,a
-     64  082c				   renderStartPlayer
-     65  082c		       20 40		      li	PLAYER_COLOR
-     66  082e		       58		      lr	8,a
-     67  082f		       28 00 00 	      pi	SUB_renderplayer
-     68  0832
-     69  0832				   MAIN_LOOP
-     70  0832		       63		      lisu	PLAYER_BANK
-     71  0833				   readInputAndSave
-     72  0833		       70		      clr
-     73  0834		       b0		      outs	0
-     74  0835		       b1		      outs	1
-     75  0836		       a1		      ins	1
-     76  0837		       18		      com
-     77  0838		       6d		      lisl	PLAYER_1_JOYSTICK
-     78  0839		       5c		      lr	s,a
-     79  083a				   checkIfAnyMove
-     80  083a		       21 03		      ni	%00000011
-     81  083c		       00 00		      bz	checkIfmissileFired
-     82  083e				   delayChecks
-     83  083e		       6b		      lisl	PLAYER_MOVE_DELAY_SECOND
-     84  083f		       4c		      lr	a,s
-     85  0840		       24 ff		      ai	$ff
-     86  0842		       5c		      lr	s,a
-     87  0843		       25 00		      ci	0
-     88  0845		       00 00		      bnz	jumpToMissleKernel
-     89  0847		       20 ff		      li	PLAYER_MOVE_DELAY_SECOND_SVALUE
-     90  0849		       5c		      lr	s,a
-     91  084a		       6c		      lisl	PLAYER_MOVE_DELAY_MAIN
-     92  084b		       4c		      lr	a,s
-     93  084c		       24 ff		      ai	$ff
-     94  084e		       5c		      lr	s,a
-     95  084f		       25 00		      ci	0
-     96  0851		       00 00		      bnz	jumpToMissleKernel
-     97  0853		       20 02		      li	PLAYER_MOVE_DELAY_MAIN_SVALUE
-     98  0855		       5c		      lr	s,a
-     99  0856		       00 00		      br	checkJoystickRight
-    100  0858				   jumpToMissleKernel
-    101  0858		       29 00 00 	      jmp	MISSILE_KERNEL
-    102  085b				   checkJoystickRight
-    103  085b		       6d		      lisl	PLAYER_1_JOYSTICK
-    104  085c		       4c		      lr	a,s
-    105  085d		       21 01		      ni	%00000001
-    106  085f		       00 00		      bz	checkJoystickLeft
-    107  0861		       69		      lisl	PLAYER_X_POS
-    108  0862		       4c		      lr	a,s
-    109  0863		       25 5f		      ci	95
-    110  0865		       00 00		      bz	checkJoystickLeft
-    111  0867
-    112  0867		       69		      lisl	PLAYER_X_POS
-    113  0868		       4c		      lr	a,s
-    114  0869		       1f		      inc
-    115  086a		       6e		      lisl	PLAYER_X_POS_NEXT
-    116  086b		       5c		      lr	s,a
-    117  086c				   checkJoystickLeft
-    118  086c		       6d		      lisl	PLAYER_1_JOYSTICK
-    119  086d		       4c		      lr	a,s
-    120  086e		       21 02		      ni	%00000010
-    121  0870		       00 00		      bz	clearPlayerPixels
-    122  0872		       69		      lisl	PLAYER_X_POS
-    123  0873		       4c		      lr	a,s
-    124  0874		       25 0a		      ci	10
-    125  0876		       00 00		      bz	clearPlayerPixels
-    126  0878
-    127  0878		       69		      lisl	PLAYER_X_POS
-    128  0879		       4c		      lr	a,s
-    129  087a		       24 ff		      ai	$ff
-    130  087c		       6e		      lisl	PLAYER_X_POS_NEXT
-    131  087d		       5c		      lr	s,a
-    132  087e				   clearPlayerPixels
-    133  087e		       20 c0		      li	COLOR_BACKGROUND
-    134  0880		       58		      lr	8,a
-    135  0881		       28 00 00 	      pi	SUB_renderplayer
-    136  0884
-    137  0884		       6e		      lisl	PLAYER_X_POS_NEXT
-    138  0885		       4c		      lr	a,s
-    139  0886		       69		      lisl	PLAYER_X_POS
-    140  0887		       5c		      lr	s,a
-    141  0888				   renderNewPlayerPos
-    142  0888		       20 40		      li	PLAYER_COLOR
-    143  088a		       58		      lr	8,a
-    144  088b		       28 00 00 	      pi	SUB_renderplayer
-    145  088e				   MISSILE_KERNEL
-    146  088e				   checkIfmissileFired
-    147  088e		       64		      lisu	MISSILE_BANK
-    148  088f		       6a		      lisl	MISSILE_STATUS
-    149  0890		       4c		      lr	a,s
-    150  0891		       21 01		      ni	%00000001
-    151  0893		       00 00		      bnz	renderMissile
-    152  0895				   checkFireButton
-    153  0895		       63		      lisu	PLAYER_BANK
-    154  0896		       6d		      lisl	PLAYER_1_JOYSTICK
-    155  0897		       4c		      lr	a,s
-    156  0898		       21 04		      ni	%00000100
-    157  089a		       84 97		      bz	MAIN_LOOP
-    158  089c				   loadPlayerPosForRef
-    159  089c		       69		      lisl	PLAYER_X_POS
-    160  089d		       4c		      lr	a,s
-    161  089e		       24 03		      ai	MISSILE_START_X_OFFSET
-    162  08a0		       64		      lisu	MISSILE_BANK
-    163  08a1		       69		      lisl	MISSILE_X_POS
-    164  08a2		       5c		      lr	s,a
-    165  08a3		       20 30		      li	MISSILE_START_Y_VALUE
-    166  08a5		       68		      lisl	MISSILE_Y_POS
-    167  08a6		       5c		      lr	s,a
-    168  08a7		       6a		      lisl	MISSILE_STATUS
-    169  08a8		       4c		      lr	a,s
-    170  08a9		       22 01		      oi	%00000001
-    171  08ab		       5c		      lr	s,a
-    172  08ac				   renderMissile
-    173  08ac		       20 80		      li	COLOR_BLUE
-    174  08ae		       b1		      outs	1
-    175  08af		       69		      lisl	MISSILE_X_POS
-    176  08b0		       4c		      lr	a,s
-    177  08b1		       18		      com
-    178  08b2		       b4		      outs	4
-    179  08b3		       68		      lisl	MISSILE_Y_POS
-    180  08b4		       4c		      lr	a,s
-    181  08b5		       18		      com
-    182  08b6		       21 3f		      ni	$3f
-    183  08b8		       b5		      outs	5
-    184  08b9		       20 60		      li	$60
-    185  08bb		       b0		      outs	0
-    186  08bc		       20 40		      li	$40
-    187  08be		       b0		      outs	0
-    188  08bf				   checkMissileDelay
-    189  08bf		       6b		      lisl	MISSILE_MOVE_DELAY_SECOND
-    190  08c0		       4c		      lr	a,s
-    191  08c1		       24 ff		      ai	$ff
-    192  08c3		       5c		      lr	s,a
-    193  08c4		       25 00		      ci	0
-    194  08c6		       00 00		      bnz	gobacK
-    195  08c8		       20 ff		      li	MISSILE_MOVE_DELAY_SECOND_SVALUE
-    196  08ca		       5c		      lr	s,a
-    197  08cb		       6c		      lisl	MISSILE_MOVE_DELAY_MAIN
-    198  08cc		       4c		      lr	a,s
-    199  08cd		       24 ff		      ai	$ff
-    200  08cf		       5c		      lr	s,a
-    201  08d0		       25 00		      ci	0
-    202  08d2		       00 00		      bnz	gobacK
-    203  08d4		       20 02		      li	MISSILE_MOVE_DELAY_MAIN_SVALUE
-    204  08d6		       5c		      lr	s,a
-    205  08d7				   moveMissile
-    206  08d7				   removeOld
-    207  08d7		       20 c0		      li	COLOR_BACKGROUND
-    208  08d9		       b1		      outs	1
-    209  08da		       69		      lisl	MISSILE_X_POS
-    210  08db		       4c		      lr	a,s
-    211  08dc		       18		      com
-    212  08dd		       b4		      outs	4
-    213  08de		       68		      lisl	MISSILE_Y_POS
-    214  08df		       4c		      lr	a,s
-    215  08e0		       18		      com
-    216  08e1		       21 3f		      ni	$3f
-    217  08e3		       b5		      outs	5
-    218  08e4		       20 60		      li	$60
-    219  08e6		       b0		      outs	0
-    220  08e7		       20 40		      li	$40
-    221  08e9		       b0		      outs	0
-    222  08ea				   moveUp
-    223  08ea		       68		      lisl	MISSILE_Y_POS
-    224  08eb		       4c		      lr	a,s
-    225  08ec		       24 ff		      ai	$ff
-    226  08ee		       5c		      lr	s,a
-    227  08ef				   gobacK
-    228  08ef		       29 08 32 	      jmp	MAIN_LOOP
-    229  08f2
-    230  08f2
-    231  08f2
-    232  08f2
-    233  08f2
-    234  08f2
-    235  08f2
-    236  08f2				   SUBS
-    237  08f2				   SUB_renderplayer
-    238  08f2		       63		      lisu	PLAYER_BANK
-    239  08f3				   setColor
-    240  08f3		       48		      lr	a,8
-    241  08f4		       b1		      outs	1
-    242  08f5				   setXCounter
-    243  08f5		       20 00		      li	0
-    244  08f7		       59		      lr	9,a
-    245  08f8				   setYCounter
-    246  08f8		       20 00		      li	0
-    247  08fa		       5a		      lr	10,a
-    248  08fb				   loadPositions
-    249  08fb		       69		      lisl	PLAYER_X_POS
-    250  08fc		       4c		      lr	a,s
-    251  08fd		       5b		      lr	11,a
-    252  08fe		       6a		      lisl	PLAYER_Y_POS
-    253  08ff		       4c		      lr	a,s
-    254  0900		       5c		      lr	12,a
-    255  0901				   loadBitMapStartPoint
-    256  0901		       2a 00 00 	      dci	SPACESHIP_BITMAP
-    257  0904				   readNextRow
-    258  0904		       16		      lm
-    259  0905		       56		      lr	6,a
-    260  0906				   testBit
-    261  0906		       46		      lr	a,6
-    262  0907		       21 80		      ni	%10000000
-    263  0909		       00 00		      bz	increaseCounters
-    264  090b				   setPixelXpos
-    265  090b		       49		      lr	a,9
-    266  090c		       cb		      as	11
-    267  090d		       18		      com
-    268  090e		       b4		      outs	4
-    269  090f				   setPixelYPos
-    270  090f		       4a		      lr	a,10
-    271  0910		       cc		      as	12
-    272  0911		       18		      com
-    273  0912		       21 3f		      ni	$3f
-    274  0914		       b5		      outs	5
-    275  0915				   render
-    276  0915		       20 60		      li	$60
-    277  0917		       b0		      outs	0
-    278  0918		       20 40		      li	$40
-    279  091a		       b0		      outs	0
-    280  091b				   increaseCounters
-    281  091b		       49		      lr	a,9
-    282  091c		       1f		      inc
-    283  091d		       59		      lr	9,a
-    284  091e		       25 08		      ci	8
-    285  0920		       00 00		      bz	prepareNextRow
-    286  0922		       00 00		      bnz	shiftBit
-    287  0924				   shiftBit
-    288  0924		       46		      lr	a,6
-    289  0925		       13		      sl	1
-    290  0926		       56		      lr	6,a
-    291  0927		       90 de		      br	testBit
-    292  0929				   prepareNextRow
-    293  0929		       20 00		      li	0
-    294  092b		       59		      lr	9,a
-    295  092c		       4a		      lr	a,10
-    296  092d		       1f		      inc
-    297  092e		       5a		      lr	10,a
-    298  092f		       25 06		      ci	6
-    299  0931		       94 d2		      bnz	readNextRow
-    300  0933		       1c		      pop
-    301  0934
-    302  0934				   SPACESHIP_BITMAP
-    303  0934		       18		      .byte.b	%00011000
-    304  0935		       3c		      .byte.b	%00111100
-    305  0936		       7e		      .byte.b	%01111110
-    306  0937		       ff		      .byte.b	%11111111
-    307  0938		       ff		      .byte.b	%11111111
-    308  0939		       3c		      .byte.b	%00111100
-    309  093a
-    310  093a
-    311  1fff					      org	$1FFF
-    312  1fff		       ff		      .byte.b	$FF
+      8  080a		       00 ff	   TICK_COUNTER_START_VALUE =	255
+      9  080a
+     10  080a		       00 40	   PLAYER_COLOR_VALUE =	COLOR_RED
+     11  080a		       00 c0	   BACKGROUND_COLOR_VALUE =	BK_COLOR_GREEN
+     12  080a		       00 01	   PLAYER_MOVE_TICKDELAY_SVALUE =	1
+     13  080a		       00 02	   MISSILE_MOVE_TICKDELAY_SVALUE =	2
+     14  080a		       00 03	   MISSILE_START_X_OFFSET_VALUE =	3
+     15  080a		       00 30	   MISSILE_START_Y_OFFSET_VALUE =	48
+     16  080a		       00 04	   SPACESHIP_SIZE =	4
+     17  080a
+     18  080a		       00 02	   MAIN_BANK  =	2
+     19  080a		       00 00	   TICK_COUNTER =	0
+     20  080a
+     21  080a		       00 03	   PLAYER_BANK =	3
+     22  080a		       00 00	   PLAYER_STATUS =	0
+     23  080a		       00 01	   PLAYER_X_POS =	1
+     24  080a		       00 02	   PLAYER_Y_POS =	2
+     25  080a		       00 03	   PLAYER_MOVE_TICKDELAY =	3
+     26  080a		       00 05	   PLAYER_1_JOYSTICK =	5
+     27  080a
+     28  080a		       00 04	   MISSILE_BANK =	4
+     29  080a		       00 00	   MISSILE_STATUS =	0
+     30  080a		       00 01	   MISSILE_X_POS =	1
+     31  080a		       00 02	   MISSILE_Y_POS =	2
+     32  080a		       00 03	   MISSILE_MOVE_TICKDELAY =	3
+     33  080a
+     34  080a
+     35  080a				   DEFAULTS
+     36  080a				   DEFAULTS_setbackground
+     37  080a		       20 93		      li	BK_COLOR_BLUE
+     38  080c		       53		      lr	3,a
+     39  080d		       28 00 d0 	      pi	BIOS_CLEAR_SCREEN
+     40  0810				   DEFAULTS_setPlayerXpos
+     41  0810		       63		      lisu	PLAYER_BANK
+     42  0811		       69		      lisl	PLAYER_X_POS
+     43  0812		       20 37		      li	55
+     44  0814		       5c		      lr	s,a
+     45  0815				   DEFAULTS_setPlayerYpos
+     46  0815		       6a		      lisl	PLAYER_Y_POS
+     47  0816		       20 34		      li	52
+     48  0818		       5c		      lr	s,a
+     49  0819				   DEFAULTS_setMoveDelay
+     50  0819		       6b		      lisl	PLAYER_MOVE_TICKDELAY
+     51  081a		       20 01		      li	PLAYER_MOVE_TICKDELAY_SVALUE
+     52  081c		       5c		      lr	s,a
+     53  081d				   DEFAULTS_setMissileMoveDelay
+     54  081d		       64		      lisu	MISSILE_BANK
+     55  081e		       6b		      lisl	MISSILE_MOVE_TICKDELAY
+     56  081f		       20 02		      li	MISSILE_MOVE_TICKDELAY_SVALUE
+     57  0821		       5c		      lr	s,a
+     58  0822				   DEFAULTS_setTickCounter
+     59  0822		       62		      lisu	MAIN_BANK
+     60  0823		       68		      lisl	TICK_COUNTER
+     61  0824		       20 ff		      li	TICK_COUNTER_START_VALUE
+     62  0826		       5c		      lr	s,a
+     63  0827				   DEFAULTS_renderStartPlayer
+     64  0827		       20 40		      li	PLAYER_COLOR_VALUE
+     65  0829		       58		      lr	8,a
+     66  082a		       28 00 00 	      pi	SUB_renderplayer
+     67  082d
+     68  082d
+     69  082d
+     70  082d
+     71  082d
+     72  082d				   MAIN
+     73  082d				   MAIN_readInput
+     74  082d		       29 00 00 	      jmp	INPUT
+     75  0830				   MAIN_spawnPlayerMissile
+     76  0830		       29 00 00 	      jmp	MISSILE
+     77  0833				   MAIN_updateTick
+     78  0833		       29 00 00 	      jmp	TICK
+     79  0836				   MAIN_playerMovement
+     80  0836		       29 00 00 	      jmp	SHIP
+     81  0839				   MAIN_moveMissile
+     82  0839		       29 00 00 	      jmp	MOVEMISSILE
+     83  083c
+     84  083c
+     85  083c
+     86  083c
+     87  083c
+     88  083c				   INPUT
+     89  083c				   INPUT_readAndSaveInput
+     90  083c		       63		      lisu	PLAYER_BANK
+     91  083d		       70		      clr
+     92  083e		       b0		      outs	0
+     93  083f		       b1		      outs	1
+     94  0840		       a1		      ins	1
+     95  0841		       18		      com
+     96  0842		       6d		      lisl	PLAYER_1_JOYSTICK
+     97  0843		       5c		      lr	s,a
+     98  0844		       90 eb		      br	MAIN_spawnPlayerMissile
+     99  0846
+    100  0846
+    101  0846
+    102  0846
+    103  0846
+    104  0846				   TICK
+    105  0846				   TICK_updateTick
+    106  0846		       62		      lisu	MAIN_BANK
+    107  0847		       68		      lisl	TICK_COUNTER
+    108  0848		       4c		      lr	a,s
+    109  0849		       24 ff		      ai	$ff
+    110  084b		       5c		      lr	s,a
+    111  084c		       94 e0		      bnz	MAIN
+    112  084e				   TICK_triggerTick
+    113  084e		       20 ff		      li	TICK_COUNTER_START_VALUE
+    114  0850		       5c		      lr	s,a
+    115  0851		       90 e4		      br	MAIN_playerMovement
+    116  0853
+    117  0853
+    118  0853
+    119  0853
+    120  0853
+    121  0853
+    122  0853				   MISSILE
+    123  0853				   MISSILE_checkIfmissileFired
+    124  0853		       64		      lisu	MISSILE_BANK
+    125  0854		       68		      lisl	MISSILE_STATUS
+    126  0855		       4c		      lr	a,s
+    127  0856		       21 01		      ni	%00000001
+    128  0858		       94 da		      bnz	MAIN_updateTick
+    129  085a				   MISSILE_checkFireButton
+    130  085a		       63		      lisu	PLAYER_BANK
+    131  085b		       6d		      lisl	PLAYER_1_JOYSTICK
+    132  085c		       4c		      lr	a,s
+    133  085d		       21 04		      ni	%00000100
+    134  085f		       84 d3		      bz	MAIN_updateTick
+    135  0861				   MISSILE_setMissileSpawnPos
+    136  0861		       69		      lisl	PLAYER_X_POS
+    137  0862		       4c		      lr	a,s
+    138  0863		       24 03		      ai	MISSILE_START_X_OFFSET_VALUE
+    139  0865		       64		      lisu	MISSILE_BANK
+    140  0866		       69		      lisl	MISSILE_X_POS
+    141  0867		       5c		      lr	s,a
+    142  0868		       20 30		      li	MISSILE_START_Y_OFFSET_VALUE
+    143  086a		       6a		      lisl	MISSILE_Y_POS
+    144  086b		       5c		      lr	s,a
+    145  086c		       68		      lisl	MISSILE_STATUS
+    146  086d		       4c		      lr	a,s
+    147  086e		       22 01		      oi	%00000001
+    148  0870		       5c		      lr	s,a
+    149  0871				   MISSILE_renderMissile
+    150  0871		       20 80		      li	COLOR_BLUE
+    151  0873		       b1		      outs	1
+    152  0874		       69		      lisl	MISSILE_X_POS
+    153  0875		       4c		      lr	a,s
+    154  0876		       18		      com
+    155  0877		       b4		      outs	4
+    156  0878		       6a		      lisl	MISSILE_Y_POS
+    157  0879		       4c		      lr	a,s
+    158  087a		       18		      com
+    159  087b		       21 3f		      ni	$3f
+    160  087d		       b5		      outs	5
+    161  087e		       20 60		      li	$60
+    162  0880		       b0		      outs	0
+    163  0881		       20 40		      li	$40
+    164  0883		       b0		      outs	0
+    165  0884		       29 08 33 	      jmp	MAIN_updateTick
+    166  0887
+    167  0887
+    168  0887
+    169  0887				   SHIP
+    170  0887				   SHIP_checkIfAnyMove
+    171  0887		       63		      lisu	PLAYER_BANK
+    172  0888		       6d		      lisl	PLAYER_1_JOYSTICK
+    173  0889		       4c		      lr	a,s
+    174  088a		       21 03		      ni	%00000011
+    175  088c		       00 00		      bz	SHIP_done
+    176  088e				   SHIP_delayCheck
+    177  088e		       6b		      lisl	PLAYER_MOVE_TICKDELAY
+    178  088f		       4c		      lr	a,s
+    179  0890		       24 ff		      ai	$ff
+    180  0892		       5c		      lr	s,a
+    181  0893		       00 00		      bnz	SHIP_done
+    182  0895		       20 01		      li	PLAYER_MOVE_TICKDELAY_SVALUE
+    183  0897		       5c		      lr	s,a
+    184  0898				   SHIP_checkJoystickRight
+    185  0898		       6d		      lisl	PLAYER_1_JOYSTICK
+    186  0899		       4c		      lr	a,s
+    187  089a		       21 01		      ni	%00000001
+    188  089c		       00 00		      bz	SHIP_moveLeft
+    189  089e				   SHIP_right_blankLeft
+    190  089e		       2a 00 00 	      dci	SPACESHIP_LEFT
+    191  08a1		       20 c0		      li	COLOR_BACKGROUND
+    192  08a3		       58		      lr	8,a
+    193  08a4		       69		      lisl	PLAYER_X_POS
+    194  08a5		       4c		      lr	a,s
+    195  08a6		       59		      lr	9,a
+    196  08a7		       6a		      lisl	PLAYER_Y_POS
+    197  08a8		       4c		      lr	a,s
+    198  08a9		       5a		      lr	10,a
+    199  08aa		       20 04		      li	SPACESHIP_SIZE
+    200  08ac		       5b		      lr	11,a
+    201  08ad		       28 00 00 	      pi	SUB_DRAW_SIDE
+    202  08b0				   SHIP_right_updatePos
+    203  08b0		       69		      lisl	PLAYER_X_POS
+    204  08b1		       4c		      lr	a,s
+    205  08b2		       1f		      inc
+    206  08b3		       5c		      lr	s,a
+    207  08b4				   SHIP_right_drawRight
+    208  08b4		       2a 00 00 	      dci	SPACESHIP_RIGHT
+    209  08b7		       20 40		      li	COLOR_RED
+    210  08b9		       58		      lr	8,a
+    211  08ba		       69		      lisl	PLAYER_X_POS
+    212  08bb		       4c		      lr	a,s
+    213  08bc		       59		      lr	9,a
+    214  08bd		       6a		      lisl	PLAYER_Y_POS
+    215  08be		       4c		      lr	a,s
+    216  08bf		       5a		      lr	10,a
+    217  08c0		       20 04		      li	SPACESHIP_SIZE
+    218  08c2		       5b		      lr	11,a
+    219  08c3		       28 00 00 	      pi	SUB_DRAW_SIDE
+    220  08c6		       00 00		      br	SHIP_done
+    221  08c8				   SHIP_moveLeft
+    222  08c8				   SHIP_left_blankRight
+    223  08c8		       2a 00 00 	      dci	SPACESHIP_RIGHT
+    224  08cb		       20 c0		      li	COLOR_BACKGROUND
+    225  08cd		       58		      lr	8,a
+    226  08ce		       69		      lisl	PLAYER_X_POS
+    227  08cf		       4c		      lr	a,s
+    228  08d0		       59		      lr	9,a
+    229  08d1		       6a		      lisl	PLAYER_Y_POS
+    230  08d2		       4c		      lr	a,s
+    231  08d3		       5a		      lr	10,a
+    232  08d4		       20 04		      li	SPACESHIP_SIZE
+    233  08d6		       5b		      lr	11,a
+    234  08d7		       28 00 00 	      pi	SUB_DRAW_SIDE
+    235  08da				   SHIP_left_updatePos
+    236  08da		       69		      lisl	PLAYER_X_POS
+    237  08db		       4c		      lr	a,s
+    238  08dc		       24 ff		      ai	$ff
+    239  08de		       5c		      lr	s,a
+    240  08df				   SHIP_left_drawLeft
+    241  08df		       2a 00 00 	      dci	SPACESHIP_LEFT
+    242  08e2		       20 40		      li	COLOR_RED
+    243  08e4		       58		      lr	8,a
+    244  08e5		       69		      lisl	PLAYER_X_POS
+    245  08e6		       4c		      lr	a,s
+    246  08e7		       59		      lr	9,a
+    247  08e8		       6a		      lisl	PLAYER_Y_POS
+    248  08e9		       4c		      lr	a,s
+    249  08ea		       5a		      lr	10,a
+    250  08eb		       20 04		      li	SPACESHIP_SIZE
+    251  08ed		       5b		      lr	11,a
+    252  08ee		       28 00 00 	      pi	SUB_DRAW_SIDE
+    253  08f1		       00 00		      br	SHIP_done
+    254  08f3				   SHIP_done
+    255  08f3		       29 08 2d 	      jmp	MAIN
+    256  08f6
+    257  08f6
+    258  08f6
+    259  08f6
+    260  08f6
+    261  08f6
+    262  08f6
+    263  08f6
+    264  08f6				   MOVEMISSILE
+    265  08f6				   MOVEMISSILE_checkMissileDelay
+    266  08f6		       64		      lisu	MISSILE_BANK
+    267  08f7		       6b		      lisl	MISSILE_MOVE_TICKDELAY
+    268  08f8		       4c		      lr	a,s
+    269  08f9		       24 ff		      ai	$ff
+    270  08fb		       00 00		      bnz	gobacK
+    271  08fd				   MOVEMISSILE_resetTickDelay
+    272  08fd		       20 02		      li	MISSILE_MOVE_TICKDELAY_SVALUE
+    273  08ff		       5c		      lr	s,a
+    274  0900				   moveMissile
+    275  0900				   removeOld
+    276  0900		       20 c0		      li	COLOR_BACKGROUND
+    277  0902		       b1		      outs	1
+    278  0903		       69		      lisl	MISSILE_X_POS
+    279  0904		       4c		      lr	a,s
+    280  0905		       18		      com
+    281  0906		       b4		      outs	4
+    282  0907		       6a		      lisl	MISSILE_Y_POS
+    283  0908		       4c		      lr	a,s
+    284  0909		       18		      com
+    285  090a		       21 3f		      ni	$3f
+    286  090c		       b5		      outs	5
+    287  090d		       20 60		      li	$60
+    288  090f		       b0		      outs	0
+    289  0910		       20 40		      li	$40
+    290  0912		       b0		      outs	0
+    291  0913				   moveUp
+    292  0913		       6a		      lisl	MISSILE_Y_POS
+    293  0914		       4c		      lr	a,s
+    294  0915		       24 ff		      ai	$ff
+    295  0917		       5c		      lr	s,a
+    296  0918				   gobacK
+    297  0918		       29 08 2d 	      jmp	MAIN
+    298  091b
+    299  091b
+    300  091b
+    301  091b
+    302  091b
+    303  091b
+    304  091b
+    305  091b				   SUBS
+    306  091b				   SUB_renderplayer
+    307  091b		       63		      lisu	PLAYER_BANK
+    308  091c				   setColor
+    309  091c		       48		      lr	a,8
+    310  091d		       b1		      outs	1
+    311  091e				   setXCounter
+    312  091e		       20 00		      li	0
+    313  0920		       59		      lr	9,a
+    314  0921				   setYCounter
+    315  0921		       20 00		      li	0
+    316  0923		       5a		      lr	10,a
+    317  0924				   loadPositions
+    318  0924		       69		      lisl	PLAYER_X_POS
+    319  0925		       4c		      lr	a,s
+    320  0926		       5b		      lr	11,a
+    321  0927		       6a		      lisl	PLAYER_Y_POS
+    322  0928		       4c		      lr	a,s
+    323  0929		       5c		      lr	12,a
+    324  092a				   loadBitMapStartPoint
+    325  092a		       2a 00 00 	      dci	SPACESHIP_BITMAP
+    326  092d				   readNextRow
+    327  092d		       16		      lm
+    328  092e		       56		      lr	6,a
+    329  092f				   testBit
+    330  092f		       46		      lr	a,6
+    331  0930		       21 80		      ni	%10000000
+    332  0932		       00 00		      bz	increaseCounters
+    333  0934				   setPixelXpos
+    334  0934		       49		      lr	a,9
+    335  0935		       cb		      as	11
+    336  0936		       18		      com
+    337  0937		       b4		      outs	4
+    338  0938				   setPixelYPos
+    339  0938		       4a		      lr	a,10
+    340  0939		       cc		      as	12
+    341  093a		       18		      com
+    342  093b		       21 3f		      ni	$3f
+    343  093d		       b5		      outs	5
+    344  093e				   render
+    345  093e		       20 60		      li	$60
+    346  0940		       b0		      outs	0
+    347  0941		       20 40		      li	$40
+    348  0943		       b0		      outs	0
+    349  0944				   increaseCounters
+    350  0944		       49		      lr	a,9
+    351  0945		       1f		      inc
+    352  0946		       59		      lr	9,a
+    353  0947		       25 08		      ci	8
+    354  0949		       00 00		      bz	prepareNextRow
+    355  094b		       00 00		      bnz	shiftBit
+    356  094d				   shiftBit
+    357  094d		       46		      lr	a,6
+    358  094e		       13		      sl	1
+    359  094f		       56		      lr	6,a
+    360  0950		       90 de		      br	testBit
+    361  0952				   prepareNextRow
+    362  0952		       20 00		      li	0
+    363  0954		       59		      lr	9,a
+    364  0955		       4a		      lr	a,10
+    365  0956		       1f		      inc
+    366  0957		       5a		      lr	10,a
+    367  0958		       25 04		      ci	4
+    368  095a		       94 d2		      bnz	readNextRow
+    369  095c		       1c		      pop
+    370  095d
+    371  095d
+    372  095d
+    373  095d
+    374  095d
+    375  095d
+    376  095d
+    377  095d				   SUB_DRAW_SIDE
+    378  095d				   SUB_DRAW_SIDE_setPixelColor
+    379  095d		       48		      lr	a,8
+    380  095e		       b1		      outs	1
+    381  095f				   SUB_DRAW_SIDE_newRow
+    382  095f				   SUB_DRAW_SIDE_setYPos
+    383  095f		       4a		      lr	a,10
+    384  0960		       18		      com
+    385  0961		       21 3f		      ni	$3f
+    386  0963		       b5		      outs	5
+    387  0964				   SUB_DRAW_SIDE_setXPos
+    388  0964		       16		      lm
+    389  0965		       c9		      as	9
+    390  0966		       18		      com
+    391  0967		       b4		      outs	4
+    392  0968				   SUB_DRAW_SIDE_draw
+    393  0968		       20 60		      li	$60
+    394  096a		       b0		      outs	0
+    395  096b		       20 40		      li	$40
+    396  096d		       b0		      outs	0
+    397  096e				   SUB_DRAW_SIDE_reduceIndex
+    398  096e		       4b		      lr	a,11
+    399  096f		       24 ff		      ai	$ff
+    400  0971		       5b		      lr	11,a
+    401  0972		       00 00		      bz	SUB_DRAW_SIDE_done
+    402  0974				   SUB_DRAW_SIDE_prepareNext
+    403  0974		       4a		      lr	a,10
+    404  0975		       1f		      inc
+    405  0976		       5a		      lr	10,a
+    406  0977		       90 e7		      br	SUB_DRAW_SIDE_newRow
+    407  0979				   SUB_DRAW_SIDE_done
+    408  0979		       1c		      pop
+    409  097a
+    410  097a
+    411  097a
+    412  097a
+    413  097a
+    414  097a				   SPACESHIP_BITMAP
+    415  097a		       18		      .byte.b	%00011000
+    416  097b		       3c		      .byte.b	%00111100
+    417  097c		       7e		      .byte.b	%01111110
+    418  097d		       ff		      .byte.b	%11111111
+    419  097e				   SPACESHIP_LEFT
+    420  097e		       03		      .byte.b	3
+    421  097f		       02		      .byte.b	2
+    422  0980		       01		      .byte.b	1
+    423  0981		       00		      .byte.b	0
+    424  0982				   SPACESHIP_RIGHT
+    425  0982		       04		      .byte.b	4
+    426  0983		       05		      .byte.b	5
+    427  0984		       06		      .byte.b	6
+    428  0985		       07		      .byte.b	7
+    429  0986
+    430  0986
+    431  0986
+    432  1fff					      org	$1FFF
+    433  1fff		       ff		      .byte.b	$FF
 ------- FILE E:\CHANNEL F\ChannelFDev\hello\main.asm LEVEL 1 PASS 2
       1  1fff					      processor	f8
 ------- FILE ves.h LEVEL 2 PASS 2
@@ -703,308 +824,429 @@
      10  0808		       68		      lisl	0
      11  0809		       5c		      lr	S, A
       7  080a
-      8  080a		       00 40	   PLAYER_COLOR =	COLOR_RED
-      9  080a		       00 ff	   PLAYER_MOVE_DELAY_SECOND_SVALUE =	255
-     10  080a		       00 02	   PLAYER_MOVE_DELAY_MAIN_SVALUE =	2
-     11  080a		       00 02	   MISSILE_MOVE_DELAY_MAIN_SVALUE =	2
-     12  080a		       00 ff	   MISSILE_MOVE_DELAY_SECOND_SVALUE =	255
-     13  080a		       00 03	   MISSILE_START_X_OFFSET =	3
-     14  080a		       00 30	   MISSILE_START_Y_VALUE =	48
-     15  080a
-     16  080a		       00 03	   PLAYER_BANK =	3
-     17  080a		       00 01	   PLAYER_X_POS =	1
-     18  080a		       00 02	   PLAYER_Y_POS =	2
-     19  080a		       00 03	   PLAYER_MOVE_DELAY_SECOND =	3
-     20  080a		       00 04	   PLAYER_MOVE_DELAY_MAIN =	4
-     21  080a		       00 05	   PLAYER_1_JOYSTICK =	5
-     22  080a		       00 06	   PLAYER_X_POS_NEXT =	6
-     23  080a		       00 07	   PLAYER_Y_POS_NEXT =	7
-     24  080a
-     25  080a		       00 04	   MISSILE_BANK =	4
-     26  080a		       00 00	   MISSILE_Y_POS =	0
-     27  080a		       00 01	   MISSILE_X_POS =	1
-     28  080a		       00 02	   MISSILE_STATUS =	2
-     29  080a		       00 03	   MISSILE_MOVE_DELAY_SECOND =	3
-     30  080a		       00 04	   MISSILE_MOVE_DELAY_MAIN =	4
-     31  080a
-     32  080a
-     33  080a				   SET_DEFAULTS
-     34  080a				   setbackground
-     35  080a		       20 93		      li	BK_COLOR_BLUE
-     36  080c		       53		      lr	3,a
-     37  080d		       28 00 d0 	      pi	BIOS_CLEAR_SCREEN
-     38  0810				   setPlayerXpos
-     39  0810		       63		      lisu	PLAYER_BANK
-     40  0811		       69		      lisl	PLAYER_X_POS
-     41  0812		       20 37		      li	55
-     42  0814		       5c		      lr	s,a
-     43  0815		       6e		      lisl	PLAYER_X_POS_NEXT
-     44  0816		       5c		      lr	s,a
-     45  0817				   setPlayerYpos
-     46  0817		       6a		      lisl	PLAYER_Y_POS
-     47  0818		       20 34		      li	52
-     48  081a		       5c		      lr	s,a
-     49  081b				   setMoveDelay
-     50  081b		       6b		      lisl	PLAYER_MOVE_DELAY_SECOND
-     51  081c		       20 ff		      li	PLAYER_MOVE_DELAY_SECOND_SVALUE
-     52  081e		       5c		      lr	s,a
-     53  081f		       6c		      lisl	PLAYER_MOVE_DELAY_MAIN
-     54  0820		       20 02		      li	PLAYER_MOVE_DELAY_MAIN_SVALUE
-     55  0822		       5c		      lr	s,a
-     56  0823				   setMissileMoveDelay
-     57  0823		       64		      lisu	MISSILE_BANK
-     58  0824		       6c		      lisl	MISSILE_MOVE_DELAY_MAIN
-     59  0825		       20 02		      li	MISSILE_MOVE_DELAY_MAIN_SVALUE
-     60  0827		       5c		      lr	s,a
-     61  0828		       6b		      lisl	MISSILE_MOVE_DELAY_SECOND
-     62  0829		       20 ff		      li	MISSILE_MOVE_DELAY_SECOND_SVALUE
-     63  082b		       5c		      lr	s,a
-     64  082c				   renderStartPlayer
-     65  082c		       20 40		      li	PLAYER_COLOR
-     66  082e		       58		      lr	8,a
-     67  082f		       28 08 f2 	      pi	SUB_renderplayer
-     68  0832
-     69  0832				   MAIN_LOOP
-     70  0832		       63		      lisu	PLAYER_BANK
-     71  0833				   readInputAndSave
-     72  0833		       70		      clr
-     73  0834		       b0		      outs	0
-     74  0835		       b1		      outs	1
-     75  0836		       a1		      ins	1
-     76  0837		       18		      com
-     77  0838		       6d		      lisl	PLAYER_1_JOYSTICK
-     78  0839		       5c		      lr	s,a
-     79  083a				   checkIfAnyMove
-     80  083a		       21 03		      ni	%00000011
-     81  083c		       84 51		      bz	checkIfmissileFired
-     82  083e				   delayChecks
-     83  083e		       6b		      lisl	PLAYER_MOVE_DELAY_SECOND
-     84  083f		       4c		      lr	a,s
-     85  0840		       24 ff		      ai	$ff
-     86  0842		       5c		      lr	s,a
-     87  0843		       25 00		      ci	0
-     88  0845		       94 12		      bnz	jumpToMissleKernel
-     89  0847		       20 ff		      li	PLAYER_MOVE_DELAY_SECOND_SVALUE
-     90  0849		       5c		      lr	s,a
-     91  084a		       6c		      lisl	PLAYER_MOVE_DELAY_MAIN
-     92  084b		       4c		      lr	a,s
-     93  084c		       24 ff		      ai	$ff
-     94  084e		       5c		      lr	s,a
-     95  084f		       25 00		      ci	0
-     96  0851		       94 06		      bnz	jumpToMissleKernel
-     97  0853		       20 02		      li	PLAYER_MOVE_DELAY_MAIN_SVALUE
-     98  0855		       5c		      lr	s,a
-     99  0856		       90 04		      br	checkJoystickRight
-    100  0858				   jumpToMissleKernel
-    101  0858		       29 08 8e 	      jmp	MISSILE_KERNEL
-    102  085b				   checkJoystickRight
-    103  085b		       6d		      lisl	PLAYER_1_JOYSTICK
-    104  085c		       4c		      lr	a,s
-    105  085d		       21 01		      ni	%00000001
-    106  085f		       84 0c		      bz	checkJoystickLeft
-    107  0861		       69		      lisl	PLAYER_X_POS
-    108  0862		       4c		      lr	a,s
-    109  0863		       25 5f		      ci	95
-    110  0865		       84 06		      bz	checkJoystickLeft
-    111  0867
-    112  0867		       69		      lisl	PLAYER_X_POS
-    113  0868		       4c		      lr	a,s
-    114  0869		       1f		      inc
-    115  086a		       6e		      lisl	PLAYER_X_POS_NEXT
-    116  086b		       5c		      lr	s,a
-    117  086c				   checkJoystickLeft
-    118  086c		       6d		      lisl	PLAYER_1_JOYSTICK
-    119  086d		       4c		      lr	a,s
-    120  086e		       21 02		      ni	%00000010
-    121  0870		       84 0d		      bz	clearPlayerPixels
-    122  0872		       69		      lisl	PLAYER_X_POS
-    123  0873		       4c		      lr	a,s
-    124  0874		       25 0a		      ci	10
-    125  0876		       84 07		      bz	clearPlayerPixels
-    126  0878
-    127  0878		       69		      lisl	PLAYER_X_POS
-    128  0879		       4c		      lr	a,s
-    129  087a		       24 ff		      ai	$ff
-    130  087c		       6e		      lisl	PLAYER_X_POS_NEXT
-    131  087d		       5c		      lr	s,a
-    132  087e				   clearPlayerPixels
-    133  087e		       20 c0		      li	COLOR_BACKGROUND
-    134  0880		       58		      lr	8,a
-    135  0881		       28 08 f2 	      pi	SUB_renderplayer
-    136  0884
-    137  0884		       6e		      lisl	PLAYER_X_POS_NEXT
-    138  0885		       4c		      lr	a,s
-    139  0886		       69		      lisl	PLAYER_X_POS
-    140  0887		       5c		      lr	s,a
-    141  0888				   renderNewPlayerPos
-    142  0888		       20 40		      li	PLAYER_COLOR
-    143  088a		       58		      lr	8,a
-    144  088b		       28 08 f2 	      pi	SUB_renderplayer
-    145  088e				   MISSILE_KERNEL
-    146  088e				   checkIfmissileFired
-    147  088e		       64		      lisu	MISSILE_BANK
-    148  088f		       6a		      lisl	MISSILE_STATUS
-    149  0890		       4c		      lr	a,s
-    150  0891		       21 01		      ni	%00000001
-    151  0893		       94 18		      bnz	renderMissile
-    152  0895				   checkFireButton
-    153  0895		       63		      lisu	PLAYER_BANK
-    154  0896		       6d		      lisl	PLAYER_1_JOYSTICK
-    155  0897		       4c		      lr	a,s
-    156  0898		       21 04		      ni	%00000100
-    157  089a		       84 97		      bz	MAIN_LOOP
-    158  089c				   loadPlayerPosForRef
-    159  089c		       69		      lisl	PLAYER_X_POS
-    160  089d		       4c		      lr	a,s
-    161  089e		       24 03		      ai	MISSILE_START_X_OFFSET
-    162  08a0		       64		      lisu	MISSILE_BANK
-    163  08a1		       69		      lisl	MISSILE_X_POS
-    164  08a2		       5c		      lr	s,a
-    165  08a3		       20 30		      li	MISSILE_START_Y_VALUE
-    166  08a5		       68		      lisl	MISSILE_Y_POS
-    167  08a6		       5c		      lr	s,a
-    168  08a7		       6a		      lisl	MISSILE_STATUS
-    169  08a8		       4c		      lr	a,s
-    170  08a9		       22 01		      oi	%00000001
-    171  08ab		       5c		      lr	s,a
-    172  08ac				   renderMissile
-    173  08ac		       20 80		      li	COLOR_BLUE
-    174  08ae		       b1		      outs	1
-    175  08af		       69		      lisl	MISSILE_X_POS
-    176  08b0		       4c		      lr	a,s
-    177  08b1		       18		      com
-    178  08b2		       b4		      outs	4
-    179  08b3		       68		      lisl	MISSILE_Y_POS
-    180  08b4		       4c		      lr	a,s
-    181  08b5		       18		      com
-    182  08b6		       21 3f		      ni	$3f
-    183  08b8		       b5		      outs	5
-    184  08b9		       20 60		      li	$60
-    185  08bb		       b0		      outs	0
-    186  08bc		       20 40		      li	$40
-    187  08be		       b0		      outs	0
-    188  08bf				   checkMissileDelay
-    189  08bf		       6b		      lisl	MISSILE_MOVE_DELAY_SECOND
-    190  08c0		       4c		      lr	a,s
-    191  08c1		       24 ff		      ai	$ff
-    192  08c3		       5c		      lr	s,a
-    193  08c4		       25 00		      ci	0
-    194  08c6		       94 28		      bnz	gobacK
-    195  08c8		       20 ff		      li	MISSILE_MOVE_DELAY_SECOND_SVALUE
-    196  08ca		       5c		      lr	s,a
-    197  08cb		       6c		      lisl	MISSILE_MOVE_DELAY_MAIN
-    198  08cc		       4c		      lr	a,s
-    199  08cd		       24 ff		      ai	$ff
-    200  08cf		       5c		      lr	s,a
-    201  08d0		       25 00		      ci	0
-    202  08d2		       94 1c		      bnz	gobacK
-    203  08d4		       20 02		      li	MISSILE_MOVE_DELAY_MAIN_SVALUE
-    204  08d6		       5c		      lr	s,a
-    205  08d7				   moveMissile
-    206  08d7				   removeOld
-    207  08d7		       20 c0		      li	COLOR_BACKGROUND
-    208  08d9		       b1		      outs	1
-    209  08da		       69		      lisl	MISSILE_X_POS
-    210  08db		       4c		      lr	a,s
-    211  08dc		       18		      com
-    212  08dd		       b4		      outs	4
-    213  08de		       68		      lisl	MISSILE_Y_POS
-    214  08df		       4c		      lr	a,s
-    215  08e0		       18		      com
-    216  08e1		       21 3f		      ni	$3f
-    217  08e3		       b5		      outs	5
-    218  08e4		       20 60		      li	$60
-    219  08e6		       b0		      outs	0
-    220  08e7		       20 40		      li	$40
-    221  08e9		       b0		      outs	0
-    222  08ea				   moveUp
-    223  08ea		       68		      lisl	MISSILE_Y_POS
-    224  08eb		       4c		      lr	a,s
-    225  08ec		       24 ff		      ai	$ff
-    226  08ee		       5c		      lr	s,a
-    227  08ef				   gobacK
-    228  08ef		       29 08 32 	      jmp	MAIN_LOOP
-    229  08f2
-    230  08f2
-    231  08f2
-    232  08f2
-    233  08f2
-    234  08f2
-    235  08f2
-    236  08f2				   SUBS
-    237  08f2				   SUB_renderplayer
-    238  08f2		       63		      lisu	PLAYER_BANK
-    239  08f3				   setColor
-    240  08f3		       48		      lr	a,8
-    241  08f4		       b1		      outs	1
-    242  08f5				   setXCounter
-    243  08f5		       20 00		      li	0
-    244  08f7		       59		      lr	9,a
-    245  08f8				   setYCounter
-    246  08f8		       20 00		      li	0
-    247  08fa		       5a		      lr	10,a
-    248  08fb				   loadPositions
-    249  08fb		       69		      lisl	PLAYER_X_POS
-    250  08fc		       4c		      lr	a,s
-    251  08fd		       5b		      lr	11,a
-    252  08fe		       6a		      lisl	PLAYER_Y_POS
-    253  08ff		       4c		      lr	a,s
-    254  0900		       5c		      lr	12,a
-    255  0901				   loadBitMapStartPoint
-    256  0901		       2a 09 34 	      dci	SPACESHIP_BITMAP
-    257  0904				   readNextRow
-    258  0904		       16		      lm
-    259  0905		       56		      lr	6,a
-    260  0906				   testBit
-    261  0906		       46		      lr	a,6
-    262  0907		       21 80		      ni	%10000000
-    263  0909		       84 11		      bz	increaseCounters
-    264  090b				   setPixelXpos
-    265  090b		       49		      lr	a,9
-    266  090c		       cb		      as	11
-    267  090d		       18		      com
-    268  090e		       b4		      outs	4
-    269  090f				   setPixelYPos
-    270  090f		       4a		      lr	a,10
-    271  0910		       cc		      as	12
-    272  0911		       18		      com
-    273  0912		       21 3f		      ni	$3f
-    274  0914		       b5		      outs	5
-    275  0915				   render
-    276  0915		       20 60		      li	$60
-    277  0917		       b0		      outs	0
-    278  0918		       20 40		      li	$40
-    279  091a		       b0		      outs	0
-    280  091b				   increaseCounters
-    281  091b		       49		      lr	a,9
-    282  091c		       1f		      inc
-    283  091d		       59		      lr	9,a
-    284  091e		       25 08		      ci	8
-    285  0920		       84 08		      bz	prepareNextRow
-    286  0922		       94 01		      bnz	shiftBit
-    287  0924				   shiftBit
-    288  0924		       46		      lr	a,6
-    289  0925		       13		      sl	1
-    290  0926		       56		      lr	6,a
-    291  0927		       90 de		      br	testBit
-    292  0929				   prepareNextRow
-    293  0929		       20 00		      li	0
-    294  092b		       59		      lr	9,a
-    295  092c		       4a		      lr	a,10
-    296  092d		       1f		      inc
-    297  092e		       5a		      lr	10,a
-    298  092f		       25 06		      ci	6
-    299  0931		       94 d2		      bnz	readNextRow
-    300  0933		       1c		      pop
-    301  0934
-    302  0934				   SPACESHIP_BITMAP
-    303  0934		       18		      .byte.b	%00011000
-    304  0935		       3c		      .byte.b	%00111100
-    305  0936		       7e		      .byte.b	%01111110
-    306  0937		       ff		      .byte.b	%11111111
-    307  0938		       ff		      .byte.b	%11111111
-    308  0939		       3c		      .byte.b	%00111100
-    309  093a
-    310  093a
-    311  1fff					      org	$1FFF
-    312  1fff		       ff		      .byte.b	$FF
+      8  080a		       00 ff	   TICK_COUNTER_START_VALUE =	255
+      9  080a
+     10  080a		       00 40	   PLAYER_COLOR_VALUE =	COLOR_RED
+     11  080a		       00 c0	   BACKGROUND_COLOR_VALUE =	BK_COLOR_GREEN
+     12  080a		       00 01	   PLAYER_MOVE_TICKDELAY_SVALUE =	1
+     13  080a		       00 02	   MISSILE_MOVE_TICKDELAY_SVALUE =	2
+     14  080a		       00 03	   MISSILE_START_X_OFFSET_VALUE =	3
+     15  080a		       00 30	   MISSILE_START_Y_OFFSET_VALUE =	48
+     16  080a		       00 04	   SPACESHIP_SIZE =	4
+     17  080a
+     18  080a		       00 02	   MAIN_BANK  =	2
+     19  080a		       00 00	   TICK_COUNTER =	0
+     20  080a
+     21  080a		       00 03	   PLAYER_BANK =	3
+     22  080a		       00 00	   PLAYER_STATUS =	0
+     23  080a		       00 01	   PLAYER_X_POS =	1
+     24  080a		       00 02	   PLAYER_Y_POS =	2
+     25  080a		       00 03	   PLAYER_MOVE_TICKDELAY =	3
+     26  080a		       00 05	   PLAYER_1_JOYSTICK =	5
+     27  080a
+     28  080a		       00 04	   MISSILE_BANK =	4
+     29  080a		       00 00	   MISSILE_STATUS =	0
+     30  080a		       00 01	   MISSILE_X_POS =	1
+     31  080a		       00 02	   MISSILE_Y_POS =	2
+     32  080a		       00 03	   MISSILE_MOVE_TICKDELAY =	3
+     33  080a
+     34  080a
+     35  080a				   DEFAULTS
+     36  080a				   DEFAULTS_setbackground
+     37  080a		       20 93		      li	BK_COLOR_BLUE
+     38  080c		       53		      lr	3,a
+     39  080d		       28 00 d0 	      pi	BIOS_CLEAR_SCREEN
+     40  0810				   DEFAULTS_setPlayerXpos
+     41  0810		       63		      lisu	PLAYER_BANK
+     42  0811		       69		      lisl	PLAYER_X_POS
+     43  0812		       20 37		      li	55
+     44  0814		       5c		      lr	s,a
+     45  0815				   DEFAULTS_setPlayerYpos
+     46  0815		       6a		      lisl	PLAYER_Y_POS
+     47  0816		       20 34		      li	52
+     48  0818		       5c		      lr	s,a
+     49  0819				   DEFAULTS_setMoveDelay
+     50  0819		       6b		      lisl	PLAYER_MOVE_TICKDELAY
+     51  081a		       20 01		      li	PLAYER_MOVE_TICKDELAY_SVALUE
+     52  081c		       5c		      lr	s,a
+     53  081d				   DEFAULTS_setMissileMoveDelay
+     54  081d		       64		      lisu	MISSILE_BANK
+     55  081e		       6b		      lisl	MISSILE_MOVE_TICKDELAY
+     56  081f		       20 02		      li	MISSILE_MOVE_TICKDELAY_SVALUE
+     57  0821		       5c		      lr	s,a
+     58  0822				   DEFAULTS_setTickCounter
+     59  0822		       62		      lisu	MAIN_BANK
+     60  0823		       68		      lisl	TICK_COUNTER
+     61  0824		       20 ff		      li	TICK_COUNTER_START_VALUE
+     62  0826		       5c		      lr	s,a
+     63  0827				   DEFAULTS_renderStartPlayer
+     64  0827		       20 40		      li	PLAYER_COLOR_VALUE
+     65  0829		       58		      lr	8,a
+     66  082a		       28 09 1b 	      pi	SUB_renderplayer
+     67  082d
+     68  082d
+     69  082d
+     70  082d
+     71  082d
+     72  082d				   MAIN
+     73  082d				   MAIN_readInput
+     74  082d		       29 08 3c 	      jmp	INPUT
+     75  0830				   MAIN_spawnPlayerMissile
+     76  0830		       29 08 53 	      jmp	MISSILE
+     77  0833				   MAIN_updateTick
+     78  0833		       29 08 46 	      jmp	TICK
+     79  0836				   MAIN_playerMovement
+     80  0836		       29 08 87 	      jmp	SHIP
+     81  0839				   MAIN_moveMissile
+     82  0839		       29 08 f6 	      jmp	MOVEMISSILE
+     83  083c
+     84  083c
+     85  083c
+     86  083c
+     87  083c
+     88  083c				   INPUT
+     89  083c				   INPUT_readAndSaveInput
+     90  083c		       63		      lisu	PLAYER_BANK
+     91  083d		       70		      clr
+     92  083e		       b0		      outs	0
+     93  083f		       b1		      outs	1
+     94  0840		       a1		      ins	1
+     95  0841		       18		      com
+     96  0842		       6d		      lisl	PLAYER_1_JOYSTICK
+     97  0843		       5c		      lr	s,a
+     98  0844		       90 eb		      br	MAIN_spawnPlayerMissile
+     99  0846
+    100  0846
+    101  0846
+    102  0846
+    103  0846
+    104  0846				   TICK
+    105  0846				   TICK_updateTick
+    106  0846		       62		      lisu	MAIN_BANK
+    107  0847		       68		      lisl	TICK_COUNTER
+    108  0848		       4c		      lr	a,s
+    109  0849		       24 ff		      ai	$ff
+    110  084b		       5c		      lr	s,a
+    111  084c		       94 e0		      bnz	MAIN
+    112  084e				   TICK_triggerTick
+    113  084e		       20 ff		      li	TICK_COUNTER_START_VALUE
+    114  0850		       5c		      lr	s,a
+    115  0851		       90 e4		      br	MAIN_playerMovement
+    116  0853
+    117  0853
+    118  0853
+    119  0853
+    120  0853
+    121  0853
+    122  0853				   MISSILE
+    123  0853				   MISSILE_checkIfmissileFired
+    124  0853		       64		      lisu	MISSILE_BANK
+    125  0854		       68		      lisl	MISSILE_STATUS
+    126  0855		       4c		      lr	a,s
+    127  0856		       21 01		      ni	%00000001
+    128  0858		       94 da		      bnz	MAIN_updateTick
+    129  085a				   MISSILE_checkFireButton
+    130  085a		       63		      lisu	PLAYER_BANK
+    131  085b		       6d		      lisl	PLAYER_1_JOYSTICK
+    132  085c		       4c		      lr	a,s
+    133  085d		       21 04		      ni	%00000100
+    134  085f		       84 d3		      bz	MAIN_updateTick
+    135  0861				   MISSILE_setMissileSpawnPos
+    136  0861		       69		      lisl	PLAYER_X_POS
+    137  0862		       4c		      lr	a,s
+    138  0863		       24 03		      ai	MISSILE_START_X_OFFSET_VALUE
+    139  0865		       64		      lisu	MISSILE_BANK
+    140  0866		       69		      lisl	MISSILE_X_POS
+    141  0867		       5c		      lr	s,a
+    142  0868		       20 30		      li	MISSILE_START_Y_OFFSET_VALUE
+    143  086a		       6a		      lisl	MISSILE_Y_POS
+    144  086b		       5c		      lr	s,a
+    145  086c		       68		      lisl	MISSILE_STATUS
+    146  086d		       4c		      lr	a,s
+    147  086e		       22 01		      oi	%00000001
+    148  0870		       5c		      lr	s,a
+    149  0871				   MISSILE_renderMissile
+    150  0871		       20 80		      li	COLOR_BLUE
+    151  0873		       b1		      outs	1
+    152  0874		       69		      lisl	MISSILE_X_POS
+    153  0875		       4c		      lr	a,s
+    154  0876		       18		      com
+    155  0877		       b4		      outs	4
+    156  0878		       6a		      lisl	MISSILE_Y_POS
+    157  0879		       4c		      lr	a,s
+    158  087a		       18		      com
+    159  087b		       21 3f		      ni	$3f
+    160  087d		       b5		      outs	5
+    161  087e		       20 60		      li	$60
+    162  0880		       b0		      outs	0
+    163  0881		       20 40		      li	$40
+    164  0883		       b0		      outs	0
+    165  0884		       29 08 33 	      jmp	MAIN_updateTick
+    166  0887
+    167  0887
+    168  0887
+    169  0887				   SHIP
+    170  0887				   SHIP_checkIfAnyMove
+    171  0887		       63		      lisu	PLAYER_BANK
+    172  0888		       6d		      lisl	PLAYER_1_JOYSTICK
+    173  0889		       4c		      lr	a,s
+    174  088a		       21 03		      ni	%00000011
+    175  088c		       84 66		      bz	SHIP_done
+    176  088e				   SHIP_delayCheck
+    177  088e		       6b		      lisl	PLAYER_MOVE_TICKDELAY
+    178  088f		       4c		      lr	a,s
+    179  0890		       24 ff		      ai	$ff
+    180  0892		       5c		      lr	s,a
+    181  0893		       94 5f		      bnz	SHIP_done
+    182  0895		       20 01		      li	PLAYER_MOVE_TICKDELAY_SVALUE
+    183  0897		       5c		      lr	s,a
+    184  0898				   SHIP_checkJoystickRight
+    185  0898		       6d		      lisl	PLAYER_1_JOYSTICK
+    186  0899		       4c		      lr	a,s
+    187  089a		       21 01		      ni	%00000001
+    188  089c		       84 2b		      bz	SHIP_moveLeft
+    189  089e				   SHIP_right_blankLeft
+    190  089e		       2a 09 7e 	      dci	SPACESHIP_LEFT
+    191  08a1		       20 c0		      li	COLOR_BACKGROUND
+    192  08a3		       58		      lr	8,a
+    193  08a4		       69		      lisl	PLAYER_X_POS
+    194  08a5		       4c		      lr	a,s
+    195  08a6		       59		      lr	9,a
+    196  08a7		       6a		      lisl	PLAYER_Y_POS
+    197  08a8		       4c		      lr	a,s
+    198  08a9		       5a		      lr	10,a
+    199  08aa		       20 04		      li	SPACESHIP_SIZE
+    200  08ac		       5b		      lr	11,a
+    201  08ad		       28 09 5d 	      pi	SUB_DRAW_SIDE
+    202  08b0				   SHIP_right_updatePos
+    203  08b0		       69		      lisl	PLAYER_X_POS
+    204  08b1		       4c		      lr	a,s
+    205  08b2		       1f		      inc
+    206  08b3		       5c		      lr	s,a
+    207  08b4				   SHIP_right_drawRight
+    208  08b4		       2a 09 82 	      dci	SPACESHIP_RIGHT
+    209  08b7		       20 40		      li	COLOR_RED
+    210  08b9		       58		      lr	8,a
+    211  08ba		       69		      lisl	PLAYER_X_POS
+    212  08bb		       4c		      lr	a,s
+    213  08bc		       59		      lr	9,a
+    214  08bd		       6a		      lisl	PLAYER_Y_POS
+    215  08be		       4c		      lr	a,s
+    216  08bf		       5a		      lr	10,a
+    217  08c0		       20 04		      li	SPACESHIP_SIZE
+    218  08c2		       5b		      lr	11,a
+    219  08c3		       28 09 5d 	      pi	SUB_DRAW_SIDE
+    220  08c6		       90 2c		      br	SHIP_done
+    221  08c8				   SHIP_moveLeft
+    222  08c8				   SHIP_left_blankRight
+    223  08c8		       2a 09 82 	      dci	SPACESHIP_RIGHT
+    224  08cb		       20 c0		      li	COLOR_BACKGROUND
+    225  08cd		       58		      lr	8,a
+    226  08ce		       69		      lisl	PLAYER_X_POS
+    227  08cf		       4c		      lr	a,s
+    228  08d0		       59		      lr	9,a
+    229  08d1		       6a		      lisl	PLAYER_Y_POS
+    230  08d2		       4c		      lr	a,s
+    231  08d3		       5a		      lr	10,a
+    232  08d4		       20 04		      li	SPACESHIP_SIZE
+    233  08d6		       5b		      lr	11,a
+    234  08d7		       28 09 5d 	      pi	SUB_DRAW_SIDE
+    235  08da				   SHIP_left_updatePos
+    236  08da		       69		      lisl	PLAYER_X_POS
+    237  08db		       4c		      lr	a,s
+    238  08dc		       24 ff		      ai	$ff
+    239  08de		       5c		      lr	s,a
+    240  08df				   SHIP_left_drawLeft
+    241  08df		       2a 09 7e 	      dci	SPACESHIP_LEFT
+    242  08e2		       20 40		      li	COLOR_RED
+    243  08e4		       58		      lr	8,a
+    244  08e5		       69		      lisl	PLAYER_X_POS
+    245  08e6		       4c		      lr	a,s
+    246  08e7		       59		      lr	9,a
+    247  08e8		       6a		      lisl	PLAYER_Y_POS
+    248  08e9		       4c		      lr	a,s
+    249  08ea		       5a		      lr	10,a
+    250  08eb		       20 04		      li	SPACESHIP_SIZE
+    251  08ed		       5b		      lr	11,a
+    252  08ee		       28 09 5d 	      pi	SUB_DRAW_SIDE
+    253  08f1		       90 01		      br	SHIP_done
+    254  08f3				   SHIP_done
+    255  08f3		       29 08 2d 	      jmp	MAIN
+    256  08f6
+    257  08f6
+    258  08f6
+    259  08f6
+    260  08f6
+    261  08f6
+    262  08f6
+    263  08f6
+    264  08f6				   MOVEMISSILE
+    265  08f6				   MOVEMISSILE_checkMissileDelay
+    266  08f6		       64		      lisu	MISSILE_BANK
+    267  08f7		       6b		      lisl	MISSILE_MOVE_TICKDELAY
+    268  08f8		       4c		      lr	a,s
+    269  08f9		       24 ff		      ai	$ff
+    270  08fb		       94 1c		      bnz	gobacK
+    271  08fd				   MOVEMISSILE_resetTickDelay
+    272  08fd		       20 02		      li	MISSILE_MOVE_TICKDELAY_SVALUE
+    273  08ff		       5c		      lr	s,a
+    274  0900				   moveMissile
+    275  0900				   removeOld
+    276  0900		       20 c0		      li	COLOR_BACKGROUND
+    277  0902		       b1		      outs	1
+    278  0903		       69		      lisl	MISSILE_X_POS
+    279  0904		       4c		      lr	a,s
+    280  0905		       18		      com
+    281  0906		       b4		      outs	4
+    282  0907		       6a		      lisl	MISSILE_Y_POS
+    283  0908		       4c		      lr	a,s
+    284  0909		       18		      com
+    285  090a		       21 3f		      ni	$3f
+    286  090c		       b5		      outs	5
+    287  090d		       20 60		      li	$60
+    288  090f		       b0		      outs	0
+    289  0910		       20 40		      li	$40
+    290  0912		       b0		      outs	0
+    291  0913				   moveUp
+    292  0913		       6a		      lisl	MISSILE_Y_POS
+    293  0914		       4c		      lr	a,s
+    294  0915		       24 ff		      ai	$ff
+    295  0917		       5c		      lr	s,a
+    296  0918				   gobacK
+    297  0918		       29 08 2d 	      jmp	MAIN
+    298  091b
+    299  091b
+    300  091b
+    301  091b
+    302  091b
+    303  091b
+    304  091b
+    305  091b				   SUBS
+    306  091b				   SUB_renderplayer
+    307  091b		       63		      lisu	PLAYER_BANK
+    308  091c				   setColor
+    309  091c		       48		      lr	a,8
+    310  091d		       b1		      outs	1
+    311  091e				   setXCounter
+    312  091e		       20 00		      li	0
+    313  0920		       59		      lr	9,a
+    314  0921				   setYCounter
+    315  0921		       20 00		      li	0
+    316  0923		       5a		      lr	10,a
+    317  0924				   loadPositions
+    318  0924		       69		      lisl	PLAYER_X_POS
+    319  0925		       4c		      lr	a,s
+    320  0926		       5b		      lr	11,a
+    321  0927		       6a		      lisl	PLAYER_Y_POS
+    322  0928		       4c		      lr	a,s
+    323  0929		       5c		      lr	12,a
+    324  092a				   loadBitMapStartPoint
+    325  092a		       2a 09 7a 	      dci	SPACESHIP_BITMAP
+    326  092d				   readNextRow
+    327  092d		       16		      lm
+    328  092e		       56		      lr	6,a
+    329  092f				   testBit
+    330  092f		       46		      lr	a,6
+    331  0930		       21 80		      ni	%10000000
+    332  0932		       84 11		      bz	increaseCounters
+    333  0934				   setPixelXpos
+    334  0934		       49		      lr	a,9
+    335  0935		       cb		      as	11
+    336  0936		       18		      com
+    337  0937		       b4		      outs	4
+    338  0938				   setPixelYPos
+    339  0938		       4a		      lr	a,10
+    340  0939		       cc		      as	12
+    341  093a		       18		      com
+    342  093b		       21 3f		      ni	$3f
+    343  093d		       b5		      outs	5
+    344  093e				   render
+    345  093e		       20 60		      li	$60
+    346  0940		       b0		      outs	0
+    347  0941		       20 40		      li	$40
+    348  0943		       b0		      outs	0
+    349  0944				   increaseCounters
+    350  0944		       49		      lr	a,9
+    351  0945		       1f		      inc
+    352  0946		       59		      lr	9,a
+    353  0947		       25 08		      ci	8
+    354  0949		       84 08		      bz	prepareNextRow
+    355  094b		       94 01		      bnz	shiftBit
+    356  094d				   shiftBit
+    357  094d		       46		      lr	a,6
+    358  094e		       13		      sl	1
+    359  094f		       56		      lr	6,a
+    360  0950		       90 de		      br	testBit
+    361  0952				   prepareNextRow
+    362  0952		       20 00		      li	0
+    363  0954		       59		      lr	9,a
+    364  0955		       4a		      lr	a,10
+    365  0956		       1f		      inc
+    366  0957		       5a		      lr	10,a
+    367  0958		       25 04		      ci	4
+    368  095a		       94 d2		      bnz	readNextRow
+    369  095c		       1c		      pop
+    370  095d
+    371  095d
+    372  095d
+    373  095d
+    374  095d
+    375  095d
+    376  095d
+    377  095d				   SUB_DRAW_SIDE
+    378  095d				   SUB_DRAW_SIDE_setPixelColor
+    379  095d		       48		      lr	a,8
+    380  095e		       b1		      outs	1
+    381  095f				   SUB_DRAW_SIDE_newRow
+    382  095f				   SUB_DRAW_SIDE_setYPos
+    383  095f		       4a		      lr	a,10
+    384  0960		       18		      com
+    385  0961		       21 3f		      ni	$3f
+    386  0963		       b5		      outs	5
+    387  0964				   SUB_DRAW_SIDE_setXPos
+    388  0964		       16		      lm
+    389  0965		       c9		      as	9
+    390  0966		       18		      com
+    391  0967		       b4		      outs	4
+    392  0968				   SUB_DRAW_SIDE_draw
+    393  0968		       20 60		      li	$60
+    394  096a		       b0		      outs	0
+    395  096b		       20 40		      li	$40
+    396  096d		       b0		      outs	0
+    397  096e				   SUB_DRAW_SIDE_reduceIndex
+    398  096e		       4b		      lr	a,11
+    399  096f		       24 ff		      ai	$ff
+    400  0971		       5b		      lr	11,a
+    401  0972		       84 06		      bz	SUB_DRAW_SIDE_done
+    402  0974				   SUB_DRAW_SIDE_prepareNext
+    403  0974		       4a		      lr	a,10
+    404  0975		       1f		      inc
+    405  0976		       5a		      lr	10,a
+    406  0977		       90 e7		      br	SUB_DRAW_SIDE_newRow
+    407  0979				   SUB_DRAW_SIDE_done
+    408  0979		       1c		      pop
+    409  097a
+    410  097a
+    411  097a
+    412  097a
+    413  097a
+    414  097a				   SPACESHIP_BITMAP
+    415  097a		       18		      .byte.b	%00011000
+    416  097b		       3c		      .byte.b	%00111100
+    417  097c		       7e		      .byte.b	%01111110
+    418  097d		       ff		      .byte.b	%11111111
+    419  097e				   SPACESHIP_LEFT
+    420  097e		       03		      .byte.b	3
+    421  097f		       02		      .byte.b	2
+    422  0980		       01		      .byte.b	1
+    423  0981		       00		      .byte.b	0
+    424  0982				   SPACESHIP_RIGHT
+    425  0982		       04		      .byte.b	4
+    426  0983		       05		      .byte.b	5
+    427  0984		       06		      .byte.b	6
+    428  0985		       07		      .byte.b	7
+    429  0986
+    430  0986
+    431  0986
+    432  1fff					      org	$1FFF
+    433  1fff		       ff		      .byte.b	$FF
